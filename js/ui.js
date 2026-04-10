@@ -20,6 +20,7 @@ import {
   tArchetype, tPassiveName, tPassiveDesc, tChampPitch,
   tColor, renderHowToPlayHTML
 } from './i18n.js';
+import { getPlayer, recordGame, getWinRate, loginWithKakao } from './auth.js';
 
 // ── App State ──
 let gs = null;
@@ -212,7 +213,7 @@ function showChampionDetail(champ) {
     <div class="champ-detail-portrait-banner">
       <picture>
         <source srcset="assets/art/champions/${champ.id}.webp" type="image/webp">
-        <img src="assets/art/champions/${champ.id}.png" alt="${champ.name}" class="champ-detail-portrait-img">
+        <img src="assets/art/champions/${champ.id}.png" alt="${champ.name}" class="champ-detail-portrait-img" loading="lazy">
       </picture>
       <div class="champ-detail-portrait-fade" style="background: linear-gradient(to bottom, transparent 40%, rgba(14,14,24,0.95) 100%)"></div>
     </div>
@@ -354,10 +355,18 @@ function applyAllText() {
   // Splash screen translatable text
   const splashTagline = document.getElementById('splash-tagline');
   if (splashTagline) splashTagline.textContent = t('splashTagline');
+  const splashPuzzle = document.getElementById('splash-btn-puzzle-title');
+  if (splashPuzzle) splashPuzzle.textContent = t('puzzleMode');
+  const splashPuzzleSub = document.getElementById('splash-btn-puzzle-sub');
+  if (splashPuzzleSub) splashPuzzleSub.textContent = t('puzzleSub');
   const splashLaunch = document.getElementById('splash-btn-launch');
   if (splashLaunch) splashLaunch.textContent = t('playVsAI');
+  const splashAISub = document.getElementById('splash-btn-ai-sub');
+  if (splashAISub) splashAISub.textContent = t('aiSub');
   const splashLocal = document.getElementById('splash-btn-local');
   if (splashLocal) splashLocal.textContent = t('local2P');
+  const splashLocalSub = document.getElementById('splash-btn-local-sub');
+  if (splashLocalSub) splashLocalSub.textContent = t('localSub');
   const splashHelp = document.getElementById('splash-btn-help');
   if (splashHelp) splashHelp.textContent = t('howToPlay');
 
@@ -431,6 +440,88 @@ function populateHowToPlay() {
   if (closeBtn) closeBtn.addEventListener('click', closeHowToPlay);
 }
 
+// ════════════════════════════════════════════
+// PLAYER PROFILE PANEL
+// ════════════════════════════════════════════
+
+let globalToastEl = null;
+let globalToastTimeout = null;
+
+function showGlobalToast(message, duration) {
+  if (!duration) duration = 3000;
+  if (globalToastTimeout) { clearTimeout(globalToastTimeout); globalToastTimeout = null; }
+  if (globalToastEl) { globalToastEl.remove(); globalToastEl = null; }
+  const toast = document.createElement('div');
+  toast.className = 'global-toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  void toast.offsetWidth;
+  toast.classList.add('visible');
+  globalToastEl = toast;
+  globalToastTimeout = setTimeout(() => {
+    if (globalToastEl) { globalToastEl.classList.remove('visible'); setTimeout(() => { if (globalToastEl) { globalToastEl.remove(); globalToastEl = null; } }, 300); }
+  }, duration);
+}
+
+function updateProfilePanel() {
+  const player = getPlayer();
+  const nameEl = document.getElementById('profile-name');
+  const gamesEl = document.getElementById('profile-games');
+  const winrateEl = document.getElementById('profile-winrate');
+  const recordEl = document.getElementById('profile-record');
+  const capturesEl = document.getElementById('profile-captures');
+  const favChampEl = document.getElementById('profile-fav-champ');
+
+  if (nameEl) nameEl.textContent = player.name;
+  if (gamesEl) gamesEl.textContent = player.stats.gamesPlayed;
+  if (winrateEl) winrateEl.textContent = getWinRate();
+  if (recordEl) recordEl.textContent = `${player.stats.wins} / ${player.stats.losses}`;
+  if (capturesEl) capturesEl.textContent = player.stats.totalCaptures;
+
+  if (favChampEl) {
+    if (player.stats.favoriteChampion) {
+      const champ = CHAMPIONS.find(c => c.id === player.stats.favoriteChampion);
+      favChampEl.textContent = champ ? tChampName(champ.id) : player.stats.favoriteChampion;
+    } else {
+      favChampEl.textContent = '—';
+    }
+  }
+}
+
+function initProfilePanel() {
+  const profileBtn = document.getElementById('btn-player-profile');
+  const profilePanel = document.getElementById('player-profile-panel');
+  const kakaoBtn = document.getElementById('btn-kakao-login');
+
+  if (!profileBtn || !profilePanel) return;
+
+  // Initialize player on load (auto-creates guest)
+  getPlayer();
+  updateProfilePanel();
+
+  // Toggle panel
+  profileBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    updateProfilePanel();
+    profilePanel.classList.toggle('hidden');
+  });
+
+  // Close panel on outside click
+  document.addEventListener('click', (e) => {
+    if (!profilePanel.classList.contains('hidden') && !profilePanel.contains(e.target) && e.target !== profileBtn) {
+      profilePanel.classList.add('hidden');
+    }
+  });
+
+  // Kakao login button
+  if (kakaoBtn) {
+    kakaoBtn.addEventListener('click', () => {
+      const result = loginWithKakao();
+      showGlobalToast(result.message, 3000);
+    });
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   // Splash screen particles — mix of rising and floating types
   const particleContainer = document.getElementById('splash-particles');
@@ -498,7 +589,17 @@ document.addEventListener('DOMContentLoaded', () => {
     startChampionSelect();
   }
 
-  // Main button goes straight to champion select (AI mode)
+  // Puzzle mode button
+  const btnPuzzle = document.getElementById('btn-puzzle');
+  if (btnPuzzle) {
+    btnPuzzle.addEventListener('click', () => {
+      showScreen('puzzle-select');
+      // puzzle-ui.js will handle rendering the level map
+      if (window.initPuzzleSelect) window.initPuzzleSelect();
+    });
+  }
+
+  // Main button goes to champion select (AI mode)
   btnAI.addEventListener('click', () => launchGame('ai'));
 
   // Second button — local 2P
@@ -514,6 +615,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Populate how-to-play content via i18n
   populateHowToPlay();
+
+  // ── Player Profile Panel ──
+  initProfilePanel();
 
   // Apply all text on initial load (buttons start blank because HTML has no static text)
   applyAllText();
@@ -563,6 +667,17 @@ function startGame() {
     if (nameEl) nameEl.textContent = tChampName(champ.id).toUpperCase();
     const passEl = document.getElementById('passive-display');
     if (passEl) passEl.innerHTML = `<span class="passive-tag">${tPassiveName(champ.passive.name)}</span>: ${tPassiveDesc(champ.passive.name)}`;
+  }
+
+  // ── Mobile: game log tap-to-expand ──
+  const gameLog = document.querySelector('.game-log');
+  if (gameLog && !gameLog._mobileLogHandler) {
+    gameLog._mobileLogHandler = () => {
+      if (window.innerWidth <= 768) {
+        gameLog.classList.toggle('log-expanded');
+      }
+    };
+    gameLog.addEventListener('click', gameLog._mobileLogHandler);
   }
 
   updateGameUI();
@@ -908,16 +1023,34 @@ function showScoringScreen() {
   document.getElementById('score-white-detail').textContent = `${scores.whiteStones} ${t('stones')} + ${scores.whiteTerritory} ${t('territory')} + ${KOMI} ${t('komi')}`;
   document.getElementById('winner-text').textContent = `${tColor(scores.winner)} ${t('wins')}`;
 
+  // Record game in player auth stats
+  const playerColor = gs.mode === 'ai' ? BLACK : BLACK; // player is always Black in AI mode
+  const playerWon = scores.winner === playerColor;
+  const playerChampion = gs.champions[playerColor] ? gs.champions[playerColor].id : null;
+  const updatedPlayer = recordGame({
+    won: playerWon,
+    championId: playerChampion,
+    captures: gameStats.captures,
+    stonesPlaced: gameStats.stonesPlaced,
+    spellsUsed: gameStats.spellsUsed
+  });
+
   const learningCard = document.getElementById('post-game-learning');
   if (learningCard) {
     learningCard.classList.remove('hidden');
     const tip = gameStats.spellsUsed === 0 ? t('tipUseSpells') : t('tipKeepPlaying');
+    const pStats = updatedPlayer.stats;
+    const winRate = getWinRate();
     learningCard.innerHTML = `
       <div class="learning-card-title">${t('whatYouLearned')}</div>
       <div class="learning-card-stats">
         ${t('youPlacedStones', { stones: String(gameStats.stonesPlaced), captures: String(gameStats.captures), spells: String(gameStats.spellsUsed), pluralSpells: gameStats.spellsUsed !== 1 ? 's' : '' })}
       </div>
       <div class="learning-card-tip"><strong>${t('tipForNextGame')}</strong> ${tip}</div>
+      <div class="learning-card-cumulative">
+        통산 전적: <strong>${pStats.wins}승 ${pStats.losses}패</strong> (승률 <strong>${winRate}</strong>)
+        &middot; 총 ${pStats.gamesPlayed}국
+      </div>
     `;
   }
 
@@ -925,6 +1058,63 @@ function showScoringScreen() {
   document.getElementById('btn-play-again').onclick = () => {
     scoringRenderer.destroy();
     showScreen('title-screen');
+    updateProfilePanel();
     applyAllText();
   };
+
+  // Share button
+  const shareBtn = document.getElementById('btn-share');
+  if (shareBtn) {
+    shareBtn.onclick = () => shareResult(scores);
+  }
+}
+
+// ── Share Result ──
+function shareResult(scores) {
+  const winner = tColor(scores.winner);
+  const text = `${winner} ${t('wins')}! ` +
+    `Black ${scores.blackScore} vs White ${scores.whiteScore}\n` +
+    `AniGO - ${t('tagline') || '인간의 직관이 반격하는 바둑 게임'}`;
+  const url = window.location.href;
+
+  // Try Web Share API first (works on most mobile browsers)
+  if (navigator.share) {
+    navigator.share({ title: 'AniGO', text, url }).catch(() => {});
+    return;
+  }
+
+  // Fallback: KakaoTalk sharing
+  if (typeof Kakao !== 'undefined') {
+    try {
+      if (!Kakao.isInitialized()) {
+        // Replace YOUR_KAKAO_APP_KEY with your actual Kakao app key
+        Kakao.init('YOUR_KAKAO_APP_KEY');
+      }
+      Kakao.Share.sendDefault({
+        objectType: 'feed',
+        content: {
+          title: 'AniGO',
+          description: text,
+          imageUrl: '', // Add a hosted image URL for rich preview
+          link: { mobileWebUrl: url, webUrl: url }
+        },
+        buttons: [
+          { title: '게임 하기', link: { mobileWebUrl: url, webUrl: url } }
+        ]
+      });
+      return;
+    } catch (e) {
+      console.warn('Kakao share failed:', e);
+    }
+  }
+
+  // Final fallback: copy to clipboard
+  navigator.clipboard.writeText(`${text}\n${url}`).then(() => {
+    const label = document.getElementById('share-label');
+    if (label) {
+      const orig = label.textContent;
+      label.textContent = '복사됨!';
+      setTimeout(() => { label.textContent = orig; }, 2000);
+    }
+  }).catch(() => {});
 }

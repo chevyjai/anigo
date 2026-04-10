@@ -2,8 +2,23 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>AniGO</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#D4A017">
+
+  <!-- iOS PWA support -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="AniGO">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+
+  <!-- Preconnect for Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
   <link rel="stylesheet" href="css/styles.css?v=2">
 </head>
 <body>
@@ -15,8 +30,46 @@
     <div class="splash-energy-pulse"></div>
     <div id="splash-particles"></div>
 
-    <!-- Language selector — top right -->
-    <div class="splash-lang" id="title-lang-selector"></div>
+    <!-- Top-right: profile + language -->
+    <div class="splash-top-right">
+      <button id="btn-player-profile" class="player-profile-btn" aria-label="Player Profile">
+        <span class="profile-icon">棋</span>
+      </button>
+      <div class="splash-lang" id="title-lang-selector"></div>
+    </div>
+
+    <!-- Player profile panel (hidden by default) -->
+    <div id="player-profile-panel" class="player-profile-panel hidden">
+      <div class="profile-panel-header">
+        <span class="profile-panel-icon">棋</span>
+        <span class="profile-panel-name" id="profile-name"></span>
+      </div>
+      <div class="profile-panel-stats">
+        <div class="profile-stat-row">
+          <span class="profile-stat-label">대국</span>
+          <span class="profile-stat-value" id="profile-games">0</span>
+        </div>
+        <div class="profile-stat-row">
+          <span class="profile-stat-label">승률</span>
+          <span class="profile-stat-value" id="profile-winrate">—</span>
+        </div>
+        <div class="profile-stat-row">
+          <span class="profile-stat-label">승/패</span>
+          <span class="profile-stat-value" id="profile-record">0 / 0</span>
+        </div>
+        <div class="profile-stat-row">
+          <span class="profile-stat-label">총 따냄</span>
+          <span class="profile-stat-value" id="profile-captures">0</span>
+        </div>
+        <div class="profile-stat-row" id="profile-fav-row">
+          <span class="profile-stat-label">최애 챔피언</span>
+          <span class="profile-stat-value" id="profile-fav-champ">—</span>
+        </div>
+      </div>
+      <button id="btn-kakao-login" class="kakao-login-btn">
+        <span class="kakao-icon">💬</span> 카카오 로그인
+      </button>
+    </div>
 
     <!-- Dynamic title + tagline (top-left) -->
     <div class="splash-title-overlay">
@@ -24,15 +77,30 @@
       <div class="splash-tagline" id="splash-tagline">인간의 직관이 반격하는 바둑 게임</div>
     </div>
 
-    <!-- Dynamic buttons (bottom-right) -->
+    <!-- Game mode buttons (bottom-right) -->
     <div class="splash-buttons">
-      <button id="btn-vs-ai" class="splash-btn splash-btn-primary">
-        <span id="splash-btn-launch">게임 시작</span>
+      <button id="btn-puzzle" class="splash-btn splash-btn-primary splash-btn-puzzle">
+        <span class="splash-btn-icon">🧩</span>
+        <span class="splash-btn-text">
+          <span id="splash-btn-puzzle-title">퍼즐 모드</span>
+          <span class="splash-btn-sub" id="splash-btn-puzzle-sub">100+ 마법 바둑 퍼즐</span>
+        </span>
+      </button>
+      <button id="btn-vs-ai" class="splash-btn">
+        <span class="splash-btn-icon">🤖</span>
+        <span class="splash-btn-text">
+          <span id="splash-btn-launch">AI 대전</span>
+          <span class="splash-btn-sub" id="splash-btn-ai-sub">챔피언을 선택하고 AI와 대결</span>
+        </span>
       </button>
       <button id="btn-local" class="splash-btn">
-        <span id="splash-btn-local">로컬 2인 대전</span>
+        <span class="splash-btn-icon">👥</span>
+        <span class="splash-btn-text">
+          <span id="splash-btn-local">2인 대전</span>
+          <span class="splash-btn-sub" id="splash-btn-local-sub">친구와 함께 플레이</span>
+        </span>
       </button>
-      <button id="btn-how-to-play" class="splash-btn">
+      <button id="btn-how-to-play" class="splash-btn splash-btn-small">
         <span id="splash-btn-help">플레이 방법</span>
       </button>
     </div>
@@ -119,7 +187,81 @@
       </div>
     </div>
     <div id="post-game-learning" class="post-game-learning hidden"></div>
-    <button id="btn-play-again" class="btn btn-primary">Play Again</button>
+    <div class="scoring-actions">
+      <button id="btn-share" class="btn btn-share" aria-label="Share result">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <span id="share-label">공유하기</span>
+      </button>
+      <button id="btn-play-again" class="btn btn-primary">Play Again</button>
+    </div>
+  </div>
+
+  <!-- PUZZLE SELECT SCREEN -->
+  <div id="puzzle-select" class="screen hidden">
+    <div class="puzzle-select-header glass-panel">
+      <button id="puzzle-btn-back-title" class="btn-back" aria-label="Back">← 뒤로</button>
+      <div class="puzzle-select-title">퍼즐 모드</div>
+      <div class="puzzle-hint-tokens">
+        <span class="hint-token-icon">&#128161;</span>
+        <span id="puzzle-hint-tokens-count">3</span>
+      </div>
+    </div>
+    <div class="puzzle-world-map-scroll">
+      <div id="puzzle-world-map" class="puzzle-world-map"></div>
+    </div>
+  </div>
+
+  <!-- PUZZLE PLAY SCREEN -->
+  <div id="puzzle-play" class="screen hidden">
+    <div class="puzzle-play-header glass-panel">
+      <button id="puzzle-btn-back" class="btn-back puzzle-back" aria-label="Back">←</button>
+      <div class="puzzle-header-center">
+        <div class="puzzle-title" id="puzzle-title"></div>
+        <div class="puzzle-goal glass-panel" id="puzzle-goal">
+          <span class="puzzle-goal-icon">&#127919;</span>
+          <span id="puzzle-goal-text"></span>
+        </div>
+      </div>
+      <div class="puzzle-header-right">
+        <div class="puzzle-moves-display">
+          <span class="puzzle-moves-label">수</span>
+          <span class="puzzle-moves-count" id="puzzle-moves">0 / ?</span>
+        </div>
+        <div class="puzzle-star-preview" id="puzzle-star-preview">
+          <span class="preview-star active">&#9733;</span>
+          <span class="preview-star active">&#9733;</span>
+          <span class="preview-star active">&#9733;</span>
+        </div>
+      </div>
+    </div>
+
+    <main class="puzzle-board-area">
+      <canvas id="puzzle-board-canvas"></canvas>
+    </main>
+
+    <div class="puzzle-controls glass-panel">
+      <div class="puzzle-spell-bar" id="puzzle-spell-bar"></div>
+      <div class="puzzle-action-bar">
+        <button class="puzzle-action-btn" id="puzzle-btn-undo" disabled>
+          <span class="action-icon">&#8630;</span>
+          <span class="action-label">되돌리기</span>
+        </button>
+        <button class="puzzle-action-btn puzzle-hint-btn" id="puzzle-btn-hint">
+          <span class="action-icon">&#128161;</span>
+          <span class="action-label">힌트 <span id="puzzle-hint-count">3</span></span>
+        </button>
+        <button class="puzzle-action-btn" id="puzzle-btn-reset">
+          <span class="action-icon">&#8635;</span>
+          <span class="action-label">초기화</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div id="puzzle-toast" class="puzzle-toast hidden"></div>
+
+    <!-- Complete/Failed overlay -->
+    <div id="puzzle-complete-overlay" class="puzzle-complete-overlay hidden"></div>
   </div>
 
   <!-- HOW TO PLAY MODAL -->
@@ -127,6 +269,21 @@
     <div class="modal-content glass-panel" id="how-to-play-content"></div>
   </div>
 
+  <!-- KakaoTalk SDK (replace YOUR_KAKAO_APP_KEY with real key) -->
+  <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js" integrity="sha384-DKYJZ8NLiK8MN4/C5P2vDkMv4DShgBbWeSUuAlMWamCxEm8x3bD+z/1mzpLj+" crossorigin="anonymous" defer></script>
+
   <script type="module" src="js/ui.js?v=4"></script>
+  <script type="module" src="js/puzzle-ui.js?v=1"></script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js')
+          .then((reg) => console.log('SW registered:', reg.scope))
+          .catch((err) => console.warn('SW registration failed:', err));
+      });
+    }
+  </script>
 </body>
 </html>

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#0a0a0f"/>
+  <!-- Board grid lines -->
+  <g stroke="rgba(0,212,212,0.3)" stroke-width="1.5">
+    <line x1="128" y1="128" x2="128" y2="384"/>
+    <line x1="192" y1="128" x2="192" y2="384"/>
+    <line x1="256" y1="128" x2="256" y2="384"/>
+    <line x1="320" y1="128" x2="320" y2="384"/>
+    <line x1="384" y1="128" x2="384" y2="384"/>
+    <line x1="128" y1="128" x2="384" y2="128"/>
+    <line x1="128" y1="192" x2="384" y2="192"/>
+    <line x1="128" y1="256" x2="384" y2="256"/>
+    <line x1="128" y1="320" x2="384" y2="320"/>
+    <line x1="128" y1="384" x2="384" y2="384"/>
+  </g>
+  <!-- Star point -->
+  <circle cx="256" cy="256" r="5" fill="rgba(0,212,212,0.5)"/>
+  <!-- Black stone with teal shimmer -->
+  <circle cx="192" cy="192" r="28" fill="#1a2a26"/>
+  <circle cx="192" cy="192" r="28" fill="url(#blackShimmer)"/>
+  <circle cx="186" cy="184" r="8" fill="rgba(100,220,190,0.3)"/>
+  <!-- White stone with pearl glow -->
+  <circle cx="320" cy="320" r="28" fill="#f0ead6"/>
+  <circle cx="314" cy="312" r="10" fill="rgba(255,255,255,0.6)"/>
+  <!-- Chi crystal -->
+  <rect x="244" y="400" width="24" height="24" rx="3" transform="rotate(45 256 412)" fill="#D4A017"/>
+  <!-- AniGO text -->
+  <text x="256" y="472" text-anchor="middle" font-family="Georgia,serif" font-size="36" font-weight="700" fill="#D4A017" letter-spacing="4">AniGO</text>
+  <defs>
+    <radialGradient id="blackShimmer" cx="40%" cy="35%">
+      <stop offset="0%" stop-color="rgba(80,220,180,0.15)"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+    </radialGradient>
+  </defs>
+</svg>

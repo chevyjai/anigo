@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <rect width="192" height="192" rx="32" fill="#0a0a0f"/>
+  <!-- Grid lines -->
+  <g stroke="rgba(0,212,212,0.2)" stroke-width="1">
+    <line x1="48" y1="48" x2="48" y2="144"/>
+    <line x1="96" y1="48" x2="96" y2="144"/>
+    <line x1="144" y1="48" x2="144" y2="144"/>
+    <line x1="48" y1="48" x2="144" y2="48"/>
+    <line x1="48" y1="96" x2="144" y2="96"/>
+    <line x1="48" y1="144" x2="144" y2="144"/>
+  </g>
+  <!-- Black stone -->
+  <circle cx="96" cy="72" r="22" fill="#0d0d12"/>
+  <circle cx="96" cy="72" r="22" fill="url(#bs)" opacity="0.6"/>
+  <!-- White stone -->
+  <circle cx="72" cy="120" r="22" fill="#f0ead6"/>
+  <circle cx="72" cy="120" r="18" fill="url(#ws)" opacity="0.4"/>
+  <!-- Gold chi spark -->
+  <circle cx="120" cy="120" r="6" fill="#D4A017" opacity="0.9"/>
+  <circle cx="120" cy="120" r="10" fill="none" stroke="#D4A017" stroke-width="1.5" opacity="0.4"/>
+  <defs>
+    <radialGradient id="bs" cx="40%" cy="35%">
+      <stop offset="0%" stop-color="#2dd4a8" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#0d0d12" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="ws" cx="40%" cy="35%">
+      <stop offset="0%" stop-color="#fff" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#f0ead6" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+</svg>

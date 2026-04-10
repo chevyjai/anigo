@@ -646,8 +646,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Main button goes to champion select (AI mode)
-  btnAI.addEventListener('click', () => launchGame('ai'));
+  // Main button goes to champion select (AI mode) — with tutorial check
+  btnAI.addEventListener('click', () => {
+    if (typeof window.checkTutorialForAI === 'function') {
+      const prompted = window.checkTutorialForAI(() => launchGame('ai'));
+      if (prompted) return; // prompt is showing; user can dismiss to proceed
+    }
+    launchGame('ai');
+  });
 
   // Second button — local 2P
   btnLocal.addEventListener('click', () => launchGame('local'));

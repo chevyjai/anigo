@@ -580,6 +580,11 @@ function onPuzzleReset() {
   updatePuzzleUI();
   updatePuzzleSpells();
 
+  // Re-apply tutorial highlights after reset
+  if (isTutorialPuzzle(puzzleEngine.puzzle.id) && puzzleEngine.puzzle.solution) {
+    applyTutorialHighlights(puzzleEngine.puzzle.solution);
+  }
+
   // Restart timer if timed mode is active
   if (timedModeEnabled && puzzleEngine.puzzle.world === 'daily') {
     startTimer();
@@ -719,6 +724,202 @@ function getSpellEmoji(spellId) {
 }
 
 // ════════════════════════════════════════════
+// INTERACTIVE TUTORIAL FUNCTIONS
+// ════════════════════════════════════════════
+
+/** Highlight solution cells with a golden pulse on the canvas renderer */
+function applyTutorialHighlights(solution) {
+  if (!puzzleRenderer || !solution || solution.length === 0) return;
+  // Set tutorialCells on the renderer — we'll draw them in the render loop
+  puzzleRenderer.tutorialCells = solution.map(s => ({ row: s.row, col: s.col }));
+
+  // Inject a custom draw hook if the renderer supports post-draw
+  if (!puzzleRenderer._tutorialDrawHooked) {
+    puzzleRenderer._tutorialDrawHooked = true;
+    const origDraw = puzzleRenderer.draw.bind(puzzleRenderer);
+    puzzleRenderer.draw = function () {
+      origDraw();
+      if (this.tutorialCells && this.tutorialCells.length > 0) {
+        const ctx = this.ctx;
+        const now = performance.now();
+        for (const cell of this.tutorialCells) {
+          const pos = this.gridToPixel(cell.row, cell.col);
+          if (!pos) continue;
+          const { x, y } = pos;
+          const radius = this.cellSize * 0.38;
+          const time = now / 1000;
+          const pulse = 0.25 + Math.sin(time * 2.5) * 0.15;
+          const ringPulse = 0.6 + Math.sin(time * 2.5) * 0.3;
+
+          // Outer glow
+          ctx.save();
+          const grad = ctx.createRadialGradient(x, y, radius * 0.4, x, y, radius * 1.6);
+          grad.addColorStop(0, `rgba(212,160,23,${pulse * 0.5})`);
+          grad.addColorStop(0.6, `rgba(212,160,23,${pulse * 0.15})`);
+          grad.addColorStop(1, 'transparent');
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(x, y, radius * 1.6, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Ring
+          ctx.strokeStyle = `rgba(212,160,23,${ringPulse})`;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Inner dot
+          ctx.fillStyle = `rgba(212,160,23,${pulse * 0.6})`;
+          ctx.beginPath();
+          ctx.arc(x, y, radius * 0.15, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+    };
+  }
+}
+
+/** Remove tutorial highlights from the renderer */
+function clearTutorialHighlights() {
+  if (puzzleRenderer) {
+    puzzleRenderer.tutorialCells = null;
+  }
+}
+
+/** Show a full-screen intro overlay for a tutorial puzzle */
+function showTutorialIntro(puzzleId) {
+  // Remove any existing overlay
+  const existing = document.getElementById('tutorial-intro-overlay');
+  if (existing) existing.remove();
+
+  const info = TUTORIAL_INTROS[puzzleId];
+  if (!info) return;
+
+  const lang = getLang();
+  const stepNum = TUTORIAL_PUZZLES.indexOf(puzzleId) + 1;
+  const title = lang === 'ko' ? info.titleKo : info.titleEn;
+  const body = lang === 'ko' ? info.bodyKo : info.bodyEn;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'tutorial-intro-overlay';
+  overlay.className = 'tutorial-intro-overlay';
+  overlay.innerHTML = `
+    <div class="tutorial-intro-card">
+      <div class="tutorial-intro-step">${lang === 'ko' ? '튜토리얼' : 'TUTORIAL'} ${stepNum}/3</div>
+      <div class="tutorial-intro-title">${title}</div>
+      <div class="tutorial-intro-body">${body}</div>
+      <button class="tutorial-intro-start-btn" id="tutorial-intro-start">
+        ${lang === 'ko' ? '시작하기' : 'Start'}
+      </button>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  document.getElementById('tutorial-intro-start').addEventListener('click', () => {
+    overlay.style.opacity = '0';
+    overlay.style.transition = 'opacity 0.3s ease';
+    setTimeout(() => overlay.remove(), 300);
+  });
+}
+
+/** Show auto-advance celebration for tutorial puzzles */
+function showTutorialAutoAdvance(puzzleId, stars) {
+  const lang = getLang();
+  const nextId = getNextPuzzleId(puzzleId);
+
+  // Remove standard completion overlay — we handle it ourselves
+  const stdOverlay = document.getElementById('puzzle-complete-overlay');
+  if (stdOverlay) stdOverlay.classList.add('hidden');
+
+  const overlay = document.createElement('div');
+  overlay.id = 'tutorial-auto-advance';
+  overlay.className = 'tutorial-auto-advance';
+
+  const starsHtml = [1,2,3].map(s =>
+    `<span style="font-size:32px;color:${s <= stars ? '#d4a017' : 'rgba(240,236,214,0.2)'};">${s <= stars ? '\u2605' : '\u2606'}</span>`
+  ).join(' ');
+
+  overlay.innerHTML = `
+    <div class="tutorial-auto-advance-text">
+      ${lang === 'ko' ? '잘했어요!' : 'Great job!'}
+    </div>
+    <div style="margin-top:16px;">${starsHtml}</div>
+    <div class="tutorial-auto-advance-sub">
+      ${nextId
+        ? (lang === 'ko' ? '다음 퍼즐로 이동합니다...' : 'Moving to next puzzle...')
+        : (lang === 'ko' ? '튜토리얼 완료!' : 'Tutorial complete!')}
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  // Auto-advance after 2 seconds
+  setTimeout(() => {
+    overlay.style.opacity = '0';
+    overlay.style.transition = 'opacity 0.3s ease';
+    setTimeout(() => {
+      overlay.remove();
+      if (nextId) {
+        currentPuzzleId = nextId;
+        startPuzzle(nextId);
+      } else {
+        cleanupPuzzle();
+        showPuzzleSelect();
+      }
+    }, 300);
+  }, 2000);
+}
+
+/** Show a gentle prompt when user tries AI mode without completing tutorials */
+export function showTutorialAIPrompt(onDismiss) {
+  const existing = document.getElementById('tutorial-ai-prompt');
+  if (existing) existing.remove();
+
+  const lang = getLang();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'tutorial-ai-prompt';
+  overlay.className = 'tutorial-ai-prompt-overlay';
+  overlay.innerHTML = `
+    <div class="tutorial-ai-prompt-card">
+      <div class="tutorial-intro-title">
+        ${lang === 'ko' ? '먼저 기초 퍼즐을 풀어보세요!' : 'Try the basic puzzles first!'}
+      </div>
+      <div class="tutorial-intro-body">
+        ${lang === 'ko'
+          ? '바둑의 기본 규칙을 배우면 AI 대전이 더 재미있어요.'
+          : 'Learning the basic rules of Go will make AI battles more fun.'}
+      </div>
+      <div class="tutorial-ai-prompt-actions">
+        <button class="btn-puzzle-go" id="tutorial-ai-go-puzzles">
+          ${lang === 'ko' ? '퍼즐 풀기' : 'Go to Puzzles'}
+        </button>
+        <button class="btn-dismiss" id="tutorial-ai-dismiss">
+          ${lang === 'ko' ? '괜찮아요' : 'No thanks'}
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  document.getElementById('tutorial-ai-go-puzzles').addEventListener('click', () => {
+    overlay.remove();
+    // Navigate to puzzle select
+    showScreen('puzzle-select');
+    if (window.initPuzzleSelect) window.initPuzzleSelect();
+  });
+
+  document.getElementById('tutorial-ai-dismiss').addEventListener('click', () => {
+    overlay.remove();
+    if (onDismiss) onDismiss();
+  });
+}
+
+// ════════════════════════════════════════════
 // PUZZLE COMPLETE OVERLAY
 // ════════════════════════════════════════════
 
@@ -731,9 +932,18 @@ function showPuzzleComplete(stars) {
   // Stop timer on completion
   stopTimer();
 
+  // Clear tutorial highlights
+  clearTutorialHighlights();
+
   // Save progress
   completePuzzle(p.id, stars);
   try { Audio.gameEnd(); } catch {}
+
+  // ── Tutorial auto-advance: skip the standard overlay for p1-1/p1-2/p1-3 ──
+  if (isTutorialPuzzle(p.id)) {
+    showTutorialAutoAdvance(p.id, stars);
+    return;
+  }
 
   const overlay = document.getElementById('puzzle-complete-overlay');
   if (!overlay) return;
@@ -940,6 +1150,13 @@ export function initPuzzleMode() {
 
 // Expose for ui.js integration
 window.initPuzzleSelect = showPuzzleSelect;
+window.checkTutorialForAI = function (onDismiss) {
+  if (!hasTutorialCompleted()) {
+    showTutorialAIPrompt(onDismiss);
+    return true; // prompt shown
+  }
+  return false; // no prompt, proceed freely
+};
 
 // Auto-init when DOM is ready
 if (document.readyState === 'loading') {

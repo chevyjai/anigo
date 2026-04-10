@@ -1,5 +1,5 @@
 // AniGO Service Worker — Offline-first cache strategy
-const CACHE_NAME = 'anigo-v3';
+const CACHE_NAME = 'anigo-v4';
 
 const PRECACHE_URLS = [
   './',

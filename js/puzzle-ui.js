@@ -37,6 +37,12 @@ let currentPuzzleId = null;
 let currentWorldIndex = 0;
 let hintTokens = 3;
 
+// ── Timed Mode State (for daily challenges) ──
+let timedModeEnabled = false;
+let timerInterval = null;
+let timerSecondsLeft = 0;
+const DAILY_TIMER_SECONDS = 60;
+
 // ── Progress persistence ──
 const STORAGE_KEY = 'anigo-puzzle-progress';
 
@@ -193,6 +199,7 @@ function startPuzzle(puzzleId) {
 
   // Cleanup previous
   if (puzzleRenderer) { puzzleRenderer.destroy(); puzzleRenderer = null; }
+  stopTimer();
 
   puzzleEngine = new PuzzleEngine(puzzle);
   showScreen('puzzle-play');
@@ -209,6 +216,13 @@ function startPuzzle(puzzleId) {
 
   // Setup control buttons
   setupPuzzleControls();
+
+  // Check if this is a daily challenge puzzle and start timer
+  const isDailyPuzzle = puzzle.world === 'daily';
+  setupTimerToggle(isDailyPuzzle);
+  if (isDailyPuzzle && timedModeEnabled) {
+    startTimer();
+  }
 
   // Update UI
   updatePuzzleUI();

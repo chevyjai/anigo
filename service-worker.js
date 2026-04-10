@@ -1,5 +1,5 @@
 // AniGO Service Worker — Offline-first cache strategy
-const CACHE_NAME = 'anigo-v1';
+const CACHE_NAME = 'anigo-v2';
 
 const PRECACHE_URLS = [
   './',
@@ -14,6 +14,11 @@ const PRECACHE_URLS = [
   './js/audio.js',
   './js/i18n.js',
   './js/auth.js',
+  './js/puzzles.js',
+  './js/puzzle-engine.js',
+  './js/puzzle-ui.js',
+  './js/progression.js',
+  './js/daily-quests.js',
   './manifest.json',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',

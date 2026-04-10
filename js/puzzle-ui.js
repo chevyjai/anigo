@@ -646,6 +646,9 @@ export function initPuzzleMode() {
   }
 }
 
+// Expose for ui.js integration
+window.initPuzzleSelect = showPuzzleSelect;
+
 // Auto-init when DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initPuzzleMode);

@@ -387,6 +387,12 @@ function applyAllText() {
   const splashHelp = document.getElementById('splash-btn-help');
   if (splashHelp) splashHelp.textContent = t('howToPlay');
 
+  // Daily challenge button
+  const splashDailyTitle = document.getElementById('splash-btn-daily-title');
+  if (splashDailyTitle) splashDailyTitle.textContent = getLang() === 'ko' ? '오늘의 도전' : "Today's Challenge";
+  const splashDailySub = document.getElementById('splash-btn-daily-sub');
+  if (splashDailySub) splashDailySub.textContent = getLang() === 'ko' ? '매일 새로운 퍼즐 도전' : 'A new puzzle every day';
+
   // Challenge friend button
   const splashChallenge = document.getElementById('splash-btn-challenge');
   if (splashChallenge) splashChallenge.textContent = t('challengeFriend');
@@ -724,6 +730,35 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Daily Challenge button — launches today's seeded puzzle directly
+  const btnDaily = document.getElementById('btn-daily-challenge');
+  if (btnDaily) {
+    btnDaily.addEventListener('click', async () => {
+      const { puzzleId } = getDailyPuzzleId();
+
+      showScreen('puzzle-select');
+      const loadingEl = document.getElementById('puzzle-loading');
+      if (!puzzleModuleLoaded) {
+        if (loadingEl) loadingEl.classList.remove('hidden');
+        try {
+          await import('./puzzle-ui.js');
+          puzzleModuleLoaded = true;
+        } catch (e) {
+          console.warn('Failed to load puzzle module:', e);
+        }
+        if (loadingEl) loadingEl.classList.add('hidden');
+      } else {
+        if (loadingEl) loadingEl.classList.add('hidden');
+      }
+      // Start the daily puzzle directly
+      if (window.startDailyPuzzle) {
+        window.startDailyPuzzle(puzzleId);
+      } else if (window.initPuzzleSelect) {
+        window.initPuzzleSelect();
+      }
+    });
+  }
+
   // Main button goes to champion select (AI mode) — with tutorial check
   btnAI.addEventListener('click', () => {
     if (typeof window.checkTutorialForAI === 'function') {
@@ -736,31 +771,34 @@ document.addEventListener('DOMContentLoaded', () => {
   // Second button — local 2P
   btnLocal.addEventListener('click', () => launchGame('local'));
 
-  // Challenge friend button — shares invite via KakaoTalk or Web Share API
+  // Challenge friend button — shares invite with daily puzzle embedded in URL
   const btnChallenge = document.getElementById('btn-challenge-friend');
   if (btnChallenge) {
     btnChallenge.addEventListener('click', () => {
-      const text = `AniGO - ${t('challengeFriendSub')}\n${t('splashTagline')}`;
-      const url = window.location.href;
+      const { puzzleId, dateStr } = getDailyPuzzleId();
+      const baseUrl = window.location.origin + window.location.pathname;
+      const challengeUrl = `${baseUrl}?daily=${encodeURIComponent(puzzleId)}&date=${dateStr}`;
+      const text = `AniGO - ${t('challengeFriendSub')}\n${t('splashTagline')}\n\uD83C\uDFAF ${getLang() === 'ko' ? '오늘의 도전 퍼즐로 대결하자!' : 'Beat my daily challenge score!'}`;
+
       if (navigator.share) {
-        navigator.share({ title: 'AniGO', text, url }).catch(() => {});
+        navigator.share({ title: 'AniGO - ' + t('challengeFriend'), text, url: challengeUrl }).catch(() => {});
       } else if (typeof Kakao !== 'undefined' && Kakao.isInitialized && Kakao.isInitialized()) {
         try {
           Kakao.Share.sendDefault({
             objectType: 'feed',
             content: {
               title: 'AniGO - ' + t('challengeFriend'),
-              description: t('splashTagline'),
-              imageUrl: '',
-              link: { mobileWebUrl: url, webUrl: url }
+              description: getLang() === 'ko' ? '오늘의 도전 퍼즐로 대결하자!' : 'Beat my daily challenge score!',
+              imageUrl: window.location.origin + '/design/homepage-splash-opt.jpg',
+              link: { mobileWebUrl: challengeUrl, webUrl: challengeUrl }
             },
             buttons: [
-              { title: t('playVsAI'), link: { mobileWebUrl: url, webUrl: url } }
+              { title: getLang() === 'ko' ? '도전 수락' : 'Accept Challenge', link: { mobileWebUrl: challengeUrl, webUrl: challengeUrl } }
             ]
           });
         } catch (e) { console.warn('Kakao challenge share failed:', e); }
       } else {
-        navigator.clipboard.writeText(`${text}\n${url}`).then(() => {
+        navigator.clipboard.writeText(`${text}\n${challengeUrl}`).then(() => {
           showGlobalToast(t('shareCopied'), 2000);
         }).catch(() => {});
       }
@@ -823,6 +861,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Player Profile Panel ──
   initProfilePanel();
+
+  // ── Streak display + daily badge ──
+  updateStreakDisplay();
+  updateDailyBadge();
+
+  // ── Handle incoming challenge URLs ──
+  const urlParams = new URLSearchParams(window.location.search);
+  const dailyParam = urlParams.get('daily');
+  if (dailyParam && dailyParam.startsWith('pd-')) {
+    // Auto-launch daily challenge from shared link
+    setTimeout(async () => {
+      showScreen('puzzle-select');
+      const loadingEl = document.getElementById('puzzle-loading');
+      if (!puzzleModuleLoaded) {
+        if (loadingEl) loadingEl.classList.remove('hidden');
+        try {
+          await import('./puzzle-ui.js');
+          puzzleModuleLoaded = true;
+        } catch (e) { console.warn('Failed to load puzzle module:', e); }
+        if (loadingEl) loadingEl.classList.add('hidden');
+      }
+      if (window.startDailyPuzzle) {
+        window.startDailyPuzzle(dailyParam);
+      }
+      // Clean up URL
+      window.history.replaceState({}, '', window.location.pathname);
+    }, 500);
+  }
 
   // Apply all text on initial load (buttons start blank because HTML has no static text)
   applyAllText();

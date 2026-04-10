@@ -11,6 +11,7 @@ import { PuzzleEngine } from './puzzle-engine.js';
 import { BoardRenderer } from './board.js';
 import * as Audio from './audio.js';
 import { t, getLang } from './i18n.js';
+import { getRank, getTotalStars, getHintTokens } from './progression.js';
 
 // Import puzzle data — base + advanced
 let PUZZLES = [];
@@ -928,6 +929,7 @@ function showPuzzleComplete(stars) {
 
   const p = puzzleEngine.puzzle;
   const lang = getLang();
+  const isDaily = p.world === 'daily';
 
   // Stop timer on completion
   stopTimer();
@@ -937,7 +939,65 @@ function showPuzzleComplete(stars) {
 
   // Save progress
   completePuzzle(p.id, stars);
-  try { Audio.gameEnd(); } catch {}
+
+  // ── Play satisfying completion sound ──
+  try {
+    // Play a short victory jingle — chiGain for quick feedback, then gameEnd for fanfare
+    Audio.chiGain();
+    setTimeout(() => { try { Audio.gameEnd(); } catch {} }, 200);
+  } catch {}
+
+  // ── Calculate hint rewards ──
+  let hintsEarned = 0;
+  if (stars === 3) hintsEarned = 2;
+  else if (stars === 2) hintsEarned = 1;
+  if (hintsEarned > 0) {
+    const progress = loadProgress();
+    progress.hintTokens = (progress.hintTokens || 0) + hintsEarned;
+    hintTokens = progress.hintTokens;
+    saveProgress(progress);
+  }
+
+  // ── Rank progress calculation ──
+  let rankProgressHtml = '';
+  try {
+    const RANKS = [
+      { minStars: 0,   title: '\uC785\uBB38\uC790',     titleEn: 'Beginner' },
+      { minStars: 11,  title: '\uCD08\uBCF4 \uAE30\uC0AC',  titleEn: 'Novice Player' },
+      { minStars: 31,  title: '\uC911\uAE09 \uAE30\uC0AC',  titleEn: 'Intermediate' },
+      { minStars: 61,  title: '\uC0C1\uAE09 \uAE30\uC0AC',  titleEn: 'Advanced' },
+      { minStars: 101, title: '\uBA85\uC778',       titleEn: 'Master' },
+      { minStars: 151, title: '\uAD6D\uC218',       titleEn: 'Grandmaster' },
+      { minStars: 201, title: '\uC2E0\uC120',       titleEn: 'Immortal' },
+    ];
+    const rankInfo = getRank();
+    const currentStars = rankInfo.totalStars;
+    // Find next rank
+    let nextRank = null;
+    for (const r of RANKS) {
+      if (r.minStars > currentStars) { nextRank = r; break; }
+    }
+    if (nextRank) {
+      const starsNeeded = nextRank.minStars - currentStars;
+      const nextTitle = lang === 'ko' ? nextRank.title : nextRank.titleEn;
+      rankProgressHtml = `
+        <div class="complete-rank-progress">
+          <span class="rank-progress-text">${lang === 'ko' ? `${nextTitle}까지 ${starsNeeded}별 남음` : `${starsNeeded} stars to ${nextTitle}`}</span>
+          <div class="rank-progress-bar">
+            <div class="rank-progress-fill" style="width: ${Math.min(100, ((currentStars - rankInfo.minStars) / (nextRank.minStars - rankInfo.minStars)) * 100)}%"></div>
+          </div>
+        </div>
+      `;
+    } else {
+      rankProgressHtml = `
+        <div class="complete-rank-progress">
+          <span class="rank-progress-text rank-max">${lang === 'ko' ? '\uCD5C\uACE0 \uB4F1\uAE09 \uB2EC\uC131!' : 'Max rank achieved!'}</span>
+        </div>
+      `;
+    }
+  } catch (e) {
+    // progression module may not export needed functions
+  }
 
   // ── Tutorial auto-advance: skip the standard overlay for p1-1/p1-2/p1-3 ──
   if (isTutorialPuzzle(p.id)) {
@@ -952,40 +1012,64 @@ function showPuzzleComplete(stars) {
   const movesUsed = puzzleEngine.moveCount;
   const optimal = p.optimalMoves || 1;
 
-  // Build KakaoTalk share button for 3-star completions
-  const shareButtonHtml = stars === 3 ? `
+  // Build hint reward display
+  const hintRewardHtml = hintsEarned > 0 ? `
+    <div class="complete-hint-reward">
+      <span class="hint-reward-icon">\uD83D\uDCA1</span>
+      <span class="hint-reward-text">+${hintsEarned} ${lang === 'ko' ? '\uD78C\uD2B8' : 'hints'}</span>
+    </div>
+  ` : '';
+
+  // Build shareable score card for daily challenges
+  const dailyShareHtml = isDaily ? `
+    <div class="daily-score-card" id="daily-score-card">
+      <div class="daily-score-header">\uD83C\uDFAF ${lang === 'ko' ? '\uC624\uB298\uC758 \uB3C4\uC804' : "Today's Challenge"}</div>
+      <div class="daily-score-stars">${'\u2605'.repeat(stars)}${'\u2606'.repeat(3 - stars)}</div>
+      <div class="daily-score-moves">${movesUsed} ${lang === 'ko' ? '\uC218' : 'moves'}</div>
+      <div class="daily-score-date">${new Date().toLocaleDateString(lang === 'ko' ? 'ko-KR' : 'en-US')}</div>
+    </div>
+    <button class="btn btn-share daily-share-btn" id="puzzle-btn-share-daily">
+      <span>\uD83D\uDCE4</span> ${lang === 'ko' ? '\uC810\uC218 \uACF5\uC720\uD558\uAE30' : 'Share Score'}
+    </button>
+  ` : '';
+
+  // Build KakaoTalk share button for 3-star completions (non-daily)
+  const shareButtonHtml = !isDaily && stars === 3 ? `
     <button class="btn btn-kakao puzzle-btn-share-kakao" id="puzzle-btn-share-kakao">
       <span class="kakao-icon">&#128172;</span>
-      ${lang === 'ko' ? '카카오톡으로 자랑하기' : 'Share on KakaoTalk'}
+      ${lang === 'ko' ? '\uCE74\uCE74\uC624\uD1A1\uC73C\uB85C \uC790\uB791\uD558\uAE30' : 'Share on KakaoTalk'}
     </button>
   ` : '';
 
   overlay.innerHTML = `
     <div class="puzzle-complete-content">
-      <div class="puzzle-complete-title">${lang === 'ko' ? '퍼즐 클리어!' : 'Puzzle Complete!'}</div>
+      <div class="puzzle-complete-title">${isDaily ? (lang === 'ko' ? '\uC624\uB298\uC758 \uB3C4\uC804 \uD074\uB9AC\uC5B4!' : "Daily Challenge Complete!") : (lang === 'ko' ? '\uD37C\uC990 \uD074\uB9AC\uC5B4!' : 'Puzzle Complete!')}</div>
       <div class="puzzle-complete-stars" id="puzzle-stars-anim">
         ${[1,2,3].map(s => `<span class="complete-star star-${s} ${s <= stars ? 'earned' : ''}" data-delay="${s * 300}">&#9733;</span>`).join('')}
       </div>
+      ${hintRewardHtml}
       <div class="puzzle-complete-stats">
         <div class="complete-stat">
-          <span class="complete-stat-label">${lang === 'ko' ? '사용한 수' : 'Moves Used'}</span>
+          <span class="complete-stat-label">${lang === 'ko' ? '\uC0AC\uC6A9\uD55C \uC218' : 'Moves Used'}</span>
           <span class="complete-stat-value">${movesUsed}</span>
         </div>
         <div class="complete-stat">
-          <span class="complete-stat-label">${lang === 'ko' ? '최적 수' : 'Optimal'}</span>
+          <span class="complete-stat-label">${lang === 'ko' ? '\uCD5C\uC801 \uC218' : 'Optimal'}</span>
           <span class="complete-stat-value">${optimal}</span>
         </div>
       </div>
+      ${rankProgressHtml}
+      ${dailyShareHtml}
       ${shareButtonHtml}
       <div class="puzzle-complete-actions">
         <button class="btn btn-primary puzzle-btn-next" id="puzzle-btn-next">
-          ${lang === 'ko' ? '다음 레벨' : 'Next Level'} →
+          ${lang === 'ko' ? '\uB2E4\uC74C \uB808\uBCA8' : 'Next Level'} \u2192
         </button>
         <button class="btn btn-secondary puzzle-btn-retry" id="puzzle-btn-retry">
-          ${lang === 'ko' ? '다시 도전' : 'Retry'}
+          ${lang === 'ko' ? '\uB2E4\uC2DC \uB3C4\uC804' : 'Retry'}
         </button>
         <button class="btn btn-secondary puzzle-btn-levels" id="puzzle-btn-levels">
-          ${lang === 'ko' ? '레벨 선택' : 'Level Select'}
+          ${lang === 'ko' ? '\uB808\uBCA8 \uC120\uD0DD' : 'Level Select'}
         </button>
       </div>
     </div>
@@ -998,6 +1082,17 @@ function showPuzzleComplete(stars) {
       setTimeout(() => el.classList.add('animate'), (i + 1) * 350);
     });
   });
+
+  // ── Animate hint reward pop-in ──
+  if (hintsEarned > 0) {
+    setTimeout(() => {
+      const rewardEl = overlay.querySelector('.complete-hint-reward');
+      if (rewardEl) {
+        rewardEl.classList.add('reward-pop');
+        try { Audio.chiGain(); } catch {}
+      }
+    }, stars * 350 + 400);
+  }
 
   // Button handlers
   document.getElementById('puzzle-btn-next')?.addEventListener('click', () => {
@@ -1023,12 +1118,32 @@ function showPuzzleComplete(stars) {
     showPuzzleSelect();
   });
 
-  // KakaoTalk share button (3-star only)
+  // KakaoTalk share button (3-star only, non-daily)
   const shareKakaoBtn = document.getElementById('puzzle-btn-share-kakao');
   if (shareKakaoBtn) {
     shareKakaoBtn.addEventListener('click', () => {
       sharePuzzleResultKakao(p, stars, movesUsed);
     });
+  }
+
+  // Daily challenge share button
+  const shareDailyBtn = document.getElementById('puzzle-btn-share-daily');
+  if (shareDailyBtn) {
+    shareDailyBtn.addEventListener('click', () => {
+      shareDailyScore(p, stars, movesUsed);
+    });
+  }
+
+  // Mark daily as completed if applicable
+  if (isDaily) {
+    try {
+      const key = 'anigo-daily-challenge-completed';
+      const now = new Date();
+      const kstOffset = 9 * 60 * 60 * 1000;
+      const kstDate = new Date(now.getTime() + kstOffset);
+      const dateStr = kstDate.toISOString().slice(0, 10);
+      localStorage.setItem(key, JSON.stringify({ date: dateStr, stars, moves: movesUsed }));
+    } catch {}
   }
 }
 
@@ -1077,6 +1192,48 @@ function sharePuzzleResultKakao(puzzle, stars, moves) {
   if (navigator.clipboard) {
     navigator.clipboard.writeText(shareText + '\n' + shareUrl).then(() => {
       showPuzzleToast(lang === 'ko' ? '클립보드에 복사되었습니다!' : 'Copied to clipboard!');
+    }).catch(() => {});
+  }
+}
+
+function shareDailyScore(puzzle, stars, moves) {
+  const lang = getLang();
+  const starStr = '\u2605'.repeat(stars) + '\u2606'.repeat(3 - stars);
+  const dateStr = new Date().toLocaleDateString(lang === 'ko' ? 'ko-KR' : 'en-US');
+  const shareText = lang === 'ko'
+    ? `\uD83C\uDFAF AniGO \uC624\uB298\uC758 \uB3C4\uC804 ${starStr}\n${moves}\uC218\uB85C \uD074\uB9AC\uC5B4! (${dateStr})\n\uB098\uB97C \uC774\uAE38 \uC218 \uC788\uC744\uAE4C?`
+    : `\uD83C\uDFAF AniGO Daily Challenge ${starStr}\nCleared in ${moves} moves! (${dateStr})\nCan you beat my score?`;
+
+  const baseUrl = window.location.origin + window.location.pathname;
+  const challengeUrl = `${baseUrl}?daily=${encodeURIComponent(puzzle.id)}`;
+
+  if (navigator.share) {
+    navigator.share({ title: 'AniGO Daily Challenge', text: shareText, url: challengeUrl }).catch(() => {});
+    return;
+  }
+
+  if (typeof Kakao !== 'undefined' && Kakao.isInitialized && Kakao.isInitialized()) {
+    try {
+      Kakao.Share.sendDefault({
+        objectType: 'feed',
+        content: {
+          title: lang === 'ko' ? 'AniGO \uC624\uB298\uC758 \uB3C4\uC804' : 'AniGO Daily Challenge',
+          description: shareText,
+          imageUrl: window.location.origin + '/design/homepage-splash-opt.jpg',
+          link: { mobileWebUrl: challengeUrl, webUrl: challengeUrl }
+        },
+        buttons: [{
+          title: lang === 'ko' ? '\uB3C4\uC804\uD558\uAE30' : 'Try it',
+          link: { mobileWebUrl: challengeUrl, webUrl: challengeUrl }
+        }]
+      });
+      return;
+    } catch (e) { console.warn('Kakao daily share failed:', e); }
+  }
+
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(shareText + '\n' + challengeUrl).then(() => {
+      showPuzzleToast(lang === 'ko' ? '\uD074\uB9BD\uBCF4\uB4DC\uC5D0 \uBCF5\uC0AC\uB418\uC5C8\uC2B5\uB2C8\uB2E4!' : 'Copied to clipboard!');
     }).catch(() => {});
   }
 }
@@ -1150,6 +1307,16 @@ export function initPuzzleMode() {
 
 // Expose for ui.js integration
 window.initPuzzleSelect = showPuzzleSelect;
+window.startDailyPuzzle = function (puzzleId) {
+  const puzzle = PUZZLES.find(p => p.id === puzzleId);
+  if (puzzle) {
+    currentPuzzleId = puzzleId;
+    startPuzzle(puzzleId);
+  } else {
+    // Fallback: show puzzle select
+    showPuzzleSelect();
+  }
+};
 window.checkTutorialForAI = function (onDismiss) {
   if (!hasTutorialCompleted()) {
     showTutorialAIPrompt(onDismiss);

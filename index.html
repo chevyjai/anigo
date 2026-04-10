@@ -100,9 +100,33 @@
           <span class="splash-btn-sub" id="splash-btn-local-sub">친구와 함께 플레이</span>
         </span>
       </button>
+      <button id="btn-challenge-friend" class="splash-btn splash-btn-social">
+        <span class="splash-btn-icon">⚔️</span>
+        <span class="splash-btn-text">
+          <span id="splash-btn-challenge">친구 도전</span>
+          <span class="splash-btn-sub" id="splash-btn-challenge-sub">카톡으로 도전장을 보내세요</span>
+        </span>
+      </button>
       <button id="btn-how-to-play" class="splash-btn splash-btn-small">
         <span id="splash-btn-help">플레이 방법</span>
       </button>
+    </div>
+
+    <!-- Web3 teaser (bottom-left, subtle) -->
+    <div class="splash-web3-teaser" id="splash-web3-teaser">
+      <div class="web3-teaser-title">
+        <span class="web3-diamond">◆</span> WEB3 <span class="web3-badge-soon">COMING SOON</span>
+      </div>
+      <div class="web3-teaser-items">
+        <div class="web3-teaser-item">
+          <span class="web3-item-icon">🎴</span>
+          <span class="web3-item-text" id="web3-nft-skins">NFT 주문 스킨</span>
+        </div>
+        <div class="web3-teaser-item">
+          <span class="web3-item-icon">🏆</span>
+          <span class="web3-item-text" id="web3-token-wager">토큰 베팅 대전</span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -188,9 +212,17 @@
     </div>
     <div id="post-game-learning" class="post-game-learning hidden"></div>
     <div class="scoring-actions">
+      <button id="btn-share-kakao" class="btn btn-share btn-share-kakao" aria-label="Share on KakaoTalk">
+        <span class="kakao-share-icon">💬</span>
+        <span id="share-kakao-label">카카오톡 공유</span>
+      </button>
       <button id="btn-share" class="btn btn-share" aria-label="Share result">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
         <span id="share-label">공유하기</span>
+      </button>
+      <button id="btn-rematch-challenge" class="btn btn-share btn-challenge-rematch" aria-label="Challenge friend">
+        <span>⚔️</span>
+        <span id="rematch-challenge-label">친구 도전</span>
       </button>
       <button id="btn-play-again" class="btn btn-primary">Play Again</button>
     </div>

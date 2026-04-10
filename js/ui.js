@@ -370,6 +370,24 @@ function applyAllText() {
   const splashHelp = document.getElementById('splash-btn-help');
   if (splashHelp) splashHelp.textContent = t('howToPlay');
 
+  // Challenge friend button
+  const splashChallenge = document.getElementById('splash-btn-challenge');
+  if (splashChallenge) splashChallenge.textContent = t('challengeFriend');
+  const splashChallengeSub = document.getElementById('splash-btn-challenge-sub');
+  if (splashChallengeSub) splashChallengeSub.textContent = t('challengeFriendSub');
+
+  // Web3 teaser text
+  const web3NftSkins = document.getElementById('web3-nft-skins');
+  if (web3NftSkins) web3NftSkins.textContent = t('web3NftSkins');
+  const web3TokenWager = document.getElementById('web3-token-wager');
+  if (web3TokenWager) web3TokenWager.textContent = t('web3TokenWager');
+
+  // Scoring social buttons
+  const shareKakaoLabel = document.getElementById('share-kakao-label');
+  if (shareKakaoLabel) shareKakaoLabel.textContent = t('shareKakao');
+  const rematchChallengeLabel = document.getElementById('rematch-challenge-label');
+  if (rematchChallengeLabel) rematchChallengeLabel.textContent = t('challengeFriend');
+
   // Pass button
   const passLabel = document.getElementById('pass-label');
   if (passLabel) passLabel.textContent = t('pass');
@@ -515,9 +533,10 @@ function initProfilePanel() {
 
   // Kakao login button
   if (kakaoBtn) {
-    kakaoBtn.addEventListener('click', () => {
-      const result = loginWithKakao();
+    kakaoBtn.addEventListener('click', async () => {
+      const result = await loginWithKakao();
       showGlobalToast(result.message, 3000);
+      if (result.success) updateProfilePanel();
     });
   }
 }
@@ -612,6 +631,80 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Second button — local 2P
   btnLocal.addEventListener('click', () => launchGame('local'));
+
+  // Challenge friend button — shares invite via KakaoTalk or Web Share API
+  const btnChallenge = document.getElementById('btn-challenge-friend');
+  if (btnChallenge) {
+    btnChallenge.addEventListener('click', () => {
+      const text = `AniGO - ${t('challengeFriendSub')}\n${t('splashTagline')}`;
+      const url = window.location.href;
+      if (navigator.share) {
+        navigator.share({ title: 'AniGO', text, url }).catch(() => {});
+      } else if (typeof Kakao !== 'undefined' && Kakao.isInitialized && Kakao.isInitialized()) {
+        try {
+          Kakao.Share.sendDefault({
+            objectType: 'feed',
+            content: {
+              title: 'AniGO - ' + t('challengeFriend'),
+              description: t('splashTagline'),
+              imageUrl: '',
+              link: { mobileWebUrl: url, webUrl: url }
+            },
+            buttons: [
+              { title: t('playVsAI'), link: { mobileWebUrl: url, webUrl: url } }
+            ]
+          });
+        } catch (e) { console.warn('Kakao challenge share failed:', e); }
+      } else {
+        navigator.clipboard.writeText(`${text}\n${url}`).then(() => {
+          showGlobalToast(t('shareCopied'), 2000);
+        }).catch(() => {});
+      }
+    });
+  }
+
+  // Rematch challenge button (scoring screen)
+  const btnRematchChallenge = document.getElementById('btn-rematch-challenge');
+  if (btnRematchChallenge) {
+    btnRematchChallenge.addEventListener('click', () => {
+      const text = `AniGO - ${t('challengeFriend')}\n${t('splashTagline')}`;
+      const url = window.location.href;
+      if (navigator.share) {
+        navigator.share({ title: 'AniGO', text, url }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(`${text}\n${url}`).then(() => {
+          showGlobalToast(t('shareCopied'), 2000);
+        }).catch(() => {});
+      }
+    });
+  }
+
+  // KakaoTalk share button (scoring screen)
+  const btnShareKakao = document.getElementById('btn-share-kakao');
+  if (btnShareKakao) {
+    btnShareKakao.addEventListener('click', () => {
+      const url = window.location.href;
+      if (typeof Kakao !== 'undefined') {
+        try {
+          if (!Kakao.isInitialized()) Kakao.init('YOUR_KAKAO_APP_KEY');
+          Kakao.Share.sendDefault({
+            objectType: 'feed',
+            content: {
+              title: 'AniGO',
+              description: t('splashTagline'),
+              imageUrl: '',
+              link: { mobileWebUrl: url, webUrl: url }
+            },
+            buttons: [
+              { title: t('playVsAI'), link: { mobileWebUrl: url, webUrl: url } }
+            ]
+          });
+        } catch (e) { console.warn('Kakao share failed:', e); }
+      } else if (navigator.share) {
+        navigator.share({ title: 'AniGO', text: t('splashTagline'), url }).catch(() => {});
+      }
+    });
+  }
 
   btnHelp.addEventListener('click', openHowToPlay);
   document.getElementById('btn-help-ingame').addEventListener('click', openHowToPlay);

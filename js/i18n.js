@@ -37,7 +37,7 @@ const STRINGS = {
 
     // Champion select screen
     chooseYourChampion: '챔피언을 선택하세요',
-    eachChampionHas: '각 챔피언은 고유한 패시브와 3개의 주문을 가지고 있어요',
+    eachChampionHas: '각 챔피언은 고유 패시브 + 3개의 고유 주문을 보유',
     lockIn: '확정',
     selectAChampion: '챔피언을 선택하세요',
     lockInChampion: '확정: ',
@@ -161,7 +161,7 @@ const STRINGS = {
     spellDescShortSmolder: '숨겨진 카운트다운. 활로가 타들어간다.',
     spellDescShortInferno: '근처 단수 돌을 모조리 태운다.',
     spellDescShortMirage: '가짜 돌을 심는다. 비밀.',
-    spellDescShortSnare: '숨겨진 함정. 턴을 빼앗는다.',
+    spellDescShortSnare: '숨겨진 함정. 턴을 뺏는다.',
     spellDescShortNineLives: '잡힌 그룹이 부활한다.',
     spellDescShortVoidRift: '교차점을 소멸시킨다.',
     spellDescShortWarpGate: '먼 두 지점을 이어 붙인다.',

@@ -393,6 +393,112 @@ body {
   box-shadow: 0 4px 24px rgba(212,160,23,0.5);
 }
 
+/* ── Challenge Friend button — social accent ── */
+.splash-btn-social {
+  border-color: rgba(254, 229, 0, 0.3) !important;
+  background: linear-gradient(135deg, rgba(254, 229, 0, 0.08), rgba(254, 229, 0, 0.03)) !important;
+}
+.splash-btn-social:hover {
+  border-color: rgba(254, 229, 0, 0.5) !important;
+  box-shadow: 0 0 16px rgba(254, 229, 0, 0.15);
+}
+
+/* ── Web3 Teaser Section (bottom-left, subtle) ── */
+.splash-web3-teaser {
+  position: absolute;
+  bottom: 8%;
+  left: 5%;
+  z-index: 20;
+  opacity: 0;
+  animation: splashBtnEntrance 0.6s ease-out 1.6s forwards;
+}
+
+.web3-teaser-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(139, 92, 246, 0.7);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.web3-diamond {
+  color: rgba(139, 92, 246, 0.8);
+  font-size: 10px;
+  animation: web3DiamondPulse 2s ease-in-out infinite;
+}
+
+@keyframes web3DiamondPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; text-shadow: 0 0 8px rgba(139, 92, 246, 0.5); }
+}
+
+.web3-badge-soon {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(59, 130, 246, 0.15));
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  color: rgba(139, 92, 246, 0.9);
+}
+
+.web3-teaser-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.web3-teaser-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: rgba(237, 237, 239, 0.5);
+  letter-spacing: 0.5px;
+  transition: color 0.2s;
+}
+
+.web3-teaser-item:hover {
+  color: rgba(237, 237, 239, 0.8);
+}
+
+.web3-item-icon {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+/* ── Scoring screen — KakaoTalk share button ── */
+.btn-share-kakao {
+  background: rgba(254, 229, 0, 0.12) !important;
+  border-color: rgba(254, 229, 0, 0.3) !important;
+  color: #FEE500 !important;
+}
+
+.btn-share-kakao:hover {
+  background: rgba(254, 229, 0, 0.2) !important;
+  border-color: rgba(254, 229, 0, 0.5) !important;
+}
+
+.kakao-share-icon {
+  font-size: 16px;
+}
+
+.btn-challenge-rematch {
+  background: linear-gradient(135deg, rgba(212, 160, 23, 0.1), rgba(212, 160, 23, 0.05)) !important;
+  border-color: rgba(212, 160, 23, 0.3) !important;
+}
+
+.btn-challenge-rematch:hover {
+  background: linear-gradient(135deg, rgba(212, 160, 23, 0.2), rgba(212, 160, 23, 0.1)) !important;
+  border-color: rgba(212, 160, 23, 0.5) !important;
+}
+
 /* Mobile splash overrides moved to main @media (max-width: 768px) block */
 
 /* Language selector — top right */
@@ -3039,6 +3145,15 @@ body {
     min-height: 44px;
   }
 
+  /* Web3 teaser — mobile position */
+  .splash-web3-teaser {
+    bottom: auto;
+    top: calc(env(safe-area-inset-top, 0px) + 70px);
+    left: 16px;
+  }
+  .web3-teaser-title { font-size: 9px; letter-spacing: 2px; }
+  .web3-teaser-item { font-size: 10px; }
+
   /* ────────────────────────────────────────
      CHAMPION SELECT — Mobile
      ──────────────────────────────────────── */
@@ -5610,8 +5725,12 @@ body {
 
 .puzzle-back {
   font-size: 20px;
-  padding: 6px 10px;
-  min-width: 40px;
+  padding: 8px 12px;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .puzzle-header-center {

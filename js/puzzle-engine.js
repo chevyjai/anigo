@@ -60,11 +60,12 @@ export class PuzzleEngine {
       }
     }
 
-    // Setup available spells
-    if (p.availableSpells && p.spellUses) {
+    // Setup available spells — handles both array and object spellUses formats
+    if (p.availableSpells) {
+      const isObjUses = p.spellUses && !Array.isArray(p.spellUses);
       for (let i = 0; i < p.availableSpells.length; i++) {
         const spellId = p.availableSpells[i];
-        const uses = p.spellUses[i] || 1;
+        const uses = isObjUses ? (p.spellUses[spellId] || 1) : (p.spellUses?.[i] || 1);
         this.availableSpells[spellId] = uses;
       }
     }

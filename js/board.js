@@ -8,6 +8,24 @@ import {
   posKey, parseKey
 } from './data.js';
 
+// Polyfill roundRect for older browsers (Samsung Internet, older Android WebView)
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, radii) {
+    const r = typeof radii === 'number' ? [radii, radii, radii, radii] : Array.isArray(radii) ? radii.map(v => typeof v === 'number' ? v : 0) : [0, 0, 0, 0];
+    while (r.length < 4) r.push(0);
+    this.moveTo(x + r[0], y);
+    this.lineTo(x + w - r[1], y);
+    this.arcTo(x + w, y, x + w, y + r[1], r[1]);
+    this.lineTo(x + w, y + h - r[2]);
+    this.arcTo(x + w, y + h, x + w - r[2], y + h, r[2]);
+    this.lineTo(x + r[3], y + h);
+    this.arcTo(x, y + h, x, y + h - r[3], r[3]);
+    this.lineTo(x, y + r[0]);
+    this.arcTo(x, y, x + r[0], y, r[0]);
+    this.closePath();
+  };
+}
+
 const ANIM_PLACE_DURATION = 280;
 const ANIM_CAPTURE_DURATION = 400;
 const ANIM_SPELL_DURATION = 600;

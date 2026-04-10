@@ -12,7 +12,7 @@ import { BoardRenderer } from './board.js';
 import * as Audio from './audio.js';
 import { t, getLang } from './i18n.js';
 
-// Try to import puzzle data (created by another agent)
+// Import puzzle data — base + advanced
 let PUZZLES = [];
 let WORLDS = [];
 try {
@@ -20,7 +20,14 @@ try {
   PUZZLES = puzzleModule.PUZZLES || [];
   WORLDS = puzzleModule.WORLDS || [];
 } catch (e) {
-  console.warn('Puzzle data not yet available:', e.message);
+  console.warn('Base puzzle data not available:', e.message);
+}
+try {
+  const advancedModule = await import('./puzzles-advanced.js');
+  if (advancedModule.ADVANCED_PUZZLES) PUZZLES = [...PUZZLES, ...advancedModule.ADVANCED_PUZZLES];
+  if (advancedModule.ADVANCED_WORLDS) WORLDS = [...WORLDS, ...advancedModule.ADVANCED_WORLDS];
+} catch (e) {
+  // Advanced puzzles not yet available — that's OK
 }
 
 // ── Puzzle State ──

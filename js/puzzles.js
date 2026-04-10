@@ -17,15 +17,33 @@ export const WORLDS = [
   },
   {
     id: 'capture',
-    name: 'Capture Training',
-    nameKo: '따먹기 훈련',
+    name: 'The Art of Capture',
+    nameKo: '따먹기의 기술',
     levels: ['p2-1', 'p2-2', 'p2-3', 'p2-4', 'p2-5', 'p2-6', 'p2-7', 'p2-8', 'p2-9', 'p2-10']
   },
   {
-    id: 'spells',
-    name: 'Spell Mastery',
-    nameKo: '마법 마스터',
+    id: 'territory',
+    name: 'Territory Master',
+    nameKo: '영토의 달인',
     levels: ['p3-1', 'p3-2', 'p3-3', 'p3-4', 'p3-5', 'p3-6', 'p3-7', 'p3-8', 'p3-9', 'p3-10']
+  },
+  {
+    id: 'spell_awakening',
+    name: 'Spell Awakening',
+    nameKo: '마법 각성',
+    levels: ['p4-1', 'p4-2', 'p4-3', 'p4-4', 'p4-5', 'p4-6', 'p4-7', 'p4-8', 'p4-9', 'p4-10']
+  },
+  {
+    id: 'void_walker',
+    name: 'Void Walker',
+    nameKo: '공허의 보행자',
+    levels: ['p5-1', 'p5-2', 'p5-3', 'p5-4', 'p5-5', 'p5-6', 'p5-7', 'p5-8', 'p5-9', 'p5-10']
+  },
+  {
+    id: 'trickster',
+    name: "Trickster's Path",
+    nameKo: '트릭스터의 길',
+    levels: ['p6-1', 'p6-2', 'p6-3', 'p6-4', 'p6-5', 'p6-6', 'p6-7', 'p6-8', 'p6-9', 'p6-10']
   }
 ];
 

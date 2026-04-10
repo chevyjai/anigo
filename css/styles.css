@@ -6593,3 +6593,132 @@ body {
     padding: 6px 12px;
   }
 }
+
+/* ── Puzzle Timer (Daily Challenge Timed Mode) ── */
+
+.puzzle-timer-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0;
+  padding: 8px 12px;
+  background: rgba(30, 40, 55, 0.7);
+  border-radius: 10px;
+  border: 1px solid rgba(0, 255, 255, 0.15);
+}
+
+.puzzle-timer-container.hidden {
+  display: none;
+}
+
+.puzzle-timer-toggle {
+  display: flex;
+  align-items: center;
+}
+
+.timer-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #b0bec5;
+}
+
+.timer-toggle-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #00e5ff;
+  cursor: pointer;
+}
+
+.timer-toggle-text {
+  white-space: nowrap;
+}
+
+.puzzle-timer-display {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 22px;
+  font-weight: 700;
+  color: #00e5ff;
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
+  padding: 4px 12px;
+  background: rgba(0, 229, 255, 0.08);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  min-width: 80px;
+  justify-content: center;
+}
+
+.puzzle-timer-display.hidden {
+  display: none;
+}
+
+.timer-icon {
+  font-size: 18px;
+}
+
+.timer-unit {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.timer-value.timer-warning {
+  color: #ffa726;
+  text-shadow: 0 0 8px rgba(255, 167, 38, 0.5);
+}
+
+.timer-value.timer-critical {
+  color: #ef5350;
+  text-shadow: 0 0 12px rgba(239, 83, 80, 0.6);
+  animation: timer-pulse 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes timer-pulse {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0.6; transform: scale(1.1); }
+}
+
+.puzzle-timer-expired-msg {
+  color: #ef5350;
+  font-size: 14px;
+  margin: 8px 0;
+  text-align: center;
+}
+
+/* ── KakaoTalk Share Button ── */
+
+.btn-kakao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 20px;
+  margin: 12px 0 4px;
+  background: linear-gradient(135deg, #fee500 0%, #f5d800 100%);
+  color: #3c1e1e;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 2px 8px rgba(254, 229, 0, 0.3);
+}
+
+.btn-kakao:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(254, 229, 0, 0.45);
+}
+
+.btn-kakao:active {
+  transform: translateY(0);
+}
+
+.kakao-icon {
+  font-size: 20px;
+}

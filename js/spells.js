@@ -62,7 +62,7 @@ export function canCastSpell(gs, spellId, caster) {
         if (gs.board[r][c] === opp && !gs.phantoms.has(posKey(r,c)) && !gs.smoldering.has(posKey(r,c))) return true;
       return false;
     case 'inferno': case 'wildfire': case 'thunderveil': return true;
-    case 'ninelives': return gs.lastCapturedGroup[caster] !== null && gs.capturedThisTurn.length > 0;
+    case 'ninelives': return gs.lastCapturedGroup[caster] !== null;
     case 'warpgate': { let ct = 0; for (let r = 0; r < BOARD_SIZE; r++) for (let c = 0; c < BOARD_SIZE; c++) if (gs.board[r][c] === EMPTY) { ct++; if (ct >= 2) return true; } return false; }
     case 'phaseshift':
       for (let r = 0; r < BOARD_SIZE; r++) for (let c = 0; c < BOARD_SIZE; c++)
@@ -182,7 +182,7 @@ export function castSpell(gs, spellId, target, caster) {
 function exShatter(gs, target, caster) {
   const opp = opposite(caster), k = posKey(target.row, target.col);
   if (gs.board[target.row][target.col] !== opp) return false;
-  if (gs.phantoms.has(k)) { gs.phantoms.delete(k); gs.board[target.row][target.col] = EMPTY; return false; }
+  if (gs.phantoms.has(k)) { gs.phantoms.delete(k); gs.board[target.row][target.col] = EMPTY; gs.addLog(`Shatter revealed a Mirage at ${coordLabel(target.row, target.col)}!`); return true; }
   if (gs.countLiberties(target.row, target.col) !== 1) return false;
   gs.board[target.row][target.col] = EMPTY;
   gs.fortified.delete(k); gs.phased.delete(k); gs.smoldering.delete(k);

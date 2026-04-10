@@ -215,7 +215,71 @@ export class BoardRenderer {
       }
     }
 
-    // 1. Board background — dark slate/stone base with radial gradient
+    // 0. Dark background behind everything (table surface)
+    ctx.fillStyle = '#0a0c14';
+    ctx.fillRect(0, 0, this.boardPixels, this.boardPixels);
+
+    // 0b. Board slab — 2.5D edge effect (visible bottom and right edges)
+    const slabInset = this.boardPixels * 0.02;
+    const slabW = this.boardPixels - slabInset * 2;
+    const slabH = slabW;
+    const slabX = slabInset;
+    const slabY = slabInset;
+    const edgeThickness = this.boardPixels * 0.025;
+
+    // Drop shadow under the slab
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+    ctx.shadowBlur = 20;
+    ctx.shadowOffsetX = 4;
+    ctx.shadowOffsetY = 6;
+    ctx.fillStyle = '#12141f';
+    ctx.beginPath();
+    ctx.roundRect(slabX, slabY, slabW, slabH, 6);
+    ctx.fill();
+    ctx.restore();
+
+    // Bottom edge of slab (darker, gives depth)
+    const edgeGrad = ctx.createLinearGradient(slabX, slabY + slabH - edgeThickness, slabX, slabY + slabH + edgeThickness);
+    edgeGrad.addColorStop(0, '#1a1e30');
+    edgeGrad.addColorStop(0.4, '#0f1220');
+    edgeGrad.addColorStop(1, '#080a12');
+    ctx.fillStyle = edgeGrad;
+    ctx.beginPath();
+    ctx.roundRect(slabX, slabY + slabH - 2, slabW, edgeThickness + 2, [0, 0, 6, 6]);
+    ctx.fill();
+
+    // Right edge of slab
+    const rightEdgeGrad = ctx.createLinearGradient(slabX + slabW - edgeThickness, slabY, slabX + slabW + edgeThickness, slabY);
+    rightEdgeGrad.addColorStop(0, '#1a1e30');
+    rightEdgeGrad.addColorStop(0.4, '#0f1220');
+    rightEdgeGrad.addColorStop(1, '#080a12');
+    ctx.fillStyle = rightEdgeGrad;
+    ctx.beginPath();
+    ctx.roundRect(slabX + slabW - 2, slabY + 6, edgeThickness + 2, slabH - 6, [0, 6, 6, 0]);
+    ctx.fill();
+
+    // Top edge highlight (subtle light reflection)
+    ctx.strokeStyle = 'rgba(100,140,180,0.08)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(slabX + 6, slabY);
+    ctx.lineTo(slabX + slabW - 6, slabY);
+    ctx.stroke();
+
+    // Left edge highlight
+    ctx.strokeStyle = 'rgba(100,140,180,0.05)';
+    ctx.beginPath();
+    ctx.moveTo(slabX, slabY + 6);
+    ctx.lineTo(slabX, slabY + slabH - 6);
+    ctx.stroke();
+
+    // 1. Board surface — dark slate/stone with radial gradient (drawn inside slab)
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(slabX, slabY, slabW, slabH, 6);
+    ctx.clip();
+
     const boardGrad = ctx.createRadialGradient(
       this.boardPixels * 0.4, this.boardPixels * 0.35, 0,
       this.boardPixels * 0.5, this.boardPixels * 0.5, this.boardPixels * 0.7
@@ -225,6 +289,7 @@ export class BoardRenderer {
     boardGrad.addColorStop(1, '#12141f');
     ctx.fillStyle = boardGrad;
     ctx.fillRect(0, 0, this.boardPixels, this.boardPixels);
+    ctx.restore();
 
     // Subtle stone/slate texture lines (cool-toned, replacing wood grain)
     ctx.save();
@@ -399,10 +464,31 @@ export class BoardRenderer {
     });
 
     // 8. Draw stones
+    // Thunder Veil: determine which color is hidden from the viewer
+    const viewerColor = (this.gs.mode === 'ai') ? BLACK : this.gs.currentPlayer;
+    const oppColor = viewerColor === BLACK ? WHITE : BLACK;
+    const thunderVeilHidesOpp = this.gs.thunderVeil[oppColor] > 0;
+
     const capturingKeys = new Set(this.captureAnims.map(a => posKey(a.row, a.col)));
     for (let r = 0; r < BOARD_SIZE; r++) {
       for (let c = 0; c < BOARD_SIZE; c++) {
         const cell = this.gs.board[r][c];
+        // Thunder Veil: hide opponent stones, show fog instead
+        if (thunderVeilHidesOpp && cell === oppColor && !capturingKeys.has(posKey(r, c))) {
+          const { x, y } = this.gridToPixel(r, c);
+          const radius = this.cellSize * 0.42;
+          ctx.save();
+          ctx.globalAlpha = 0.25 + 0.1 * Math.sin(now * 0.003 + r * 2 + c);
+          const fogGrad = ctx.createRadialGradient(x, y, 0, x, y, radius);
+          fogGrad.addColorStop(0, 'rgba(100,80,200,0.6)');
+          fogGrad.addColorStop(1, 'rgba(60,40,120,0)');
+          ctx.fillStyle = fogGrad;
+          ctx.beginPath();
+          ctx.arc(x, y, radius * 1.3, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+          continue;
+        }
         if ((cell === BLACK || cell === WHITE) && !capturingKeys.has(posKey(r, c))) {
           const placeAnim = this.placeAnims.find(a => a.row === r && a.col === c);
           let scale = 1;
@@ -582,31 +668,35 @@ export class BoardRenderer {
 
     ctx.save();
 
-    // Drop shadow — deeper for "floating above board" feel
-    ctx.shadowColor = color === BLACK ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.5)';
-    ctx.shadowBlur = 10;
-    ctx.shadowOffsetX = 1;
-    ctx.shadowOffsetY = 4;
+    // ── Soft board shadow beneath the stone ──
+    ctx.shadowColor = color === BLACK ? 'rgba(0,0,0,0.7)' : 'rgba(0,0,0,0.45)';
+    ctx.shadowBlur = radius * 0.55;
+    ctx.shadowOffsetX = radius * 0.04;
+    ctx.shadowOffsetY = radius * 0.18;
 
     if (color === BLACK) {
+      // ── BLACK STONE — glossy obsidian/jade body ──
       const grad = ctx.createRadialGradient(
-        x - radius * 0.35, y - radius * 0.35, radius * 0.05,
-        x + radius * 0.1, y + radius * 0.1, radius
+        x - radius * 0.32, y - radius * 0.32, radius * 0.04,
+        x + radius * 0.08, y + radius * 0.08, radius
       );
-      grad.addColorStop(0, '#35354a');
-      grad.addColorStop(0.4, '#1e1e2a');
-      grad.addColorStop(0.85, '#0d0d14');
-      grad.addColorStop(1, '#080810');
+      grad.addColorStop(0, '#2a3a38');   // dark jade highlight core
+      grad.addColorStop(0.25, '#1a2a26'); // deep teal mid
+      grad.addColorStop(0.55, '#0f1a17'); // dark green-black
+      grad.addColorStop(0.85, '#0a100e'); // near-black with green tint
+      grad.addColorStop(1, '#060a09');    // obsidian edge
       ctx.fillStyle = grad;
     } else {
+      // ── WHITE STONE — pearlescent / nacre body ──
       const grad = ctx.createRadialGradient(
-        x - radius * 0.35, y - radius * 0.35, radius * 0.05,
-        x + radius * 0.1, y + radius * 0.1, radius
+        x - radius * 0.32, y - radius * 0.32, radius * 0.04,
+        x + radius * 0.08, y + radius * 0.08, radius
       );
-      grad.addColorStop(0, '#fffff8');
-      grad.addColorStop(0.3, '#faf4e0');
-      grad.addColorStop(0.7, '#f0ead6');
-      grad.addColorStop(1, '#e0d8c0');
+      grad.addColorStop(0, '#fffff6');    // warm bright core
+      grad.addColorStop(0.2, '#fef8ee');  // cream
+      grad.addColorStop(0.5, '#f4eee4');  // soft pearl mid
+      grad.addColorStop(0.78, '#ece4d6'); // warm pearl
+      grad.addColorStop(1, '#ddd4c4');    // nacre edge
       ctx.fillStyle = grad;
     }
 
@@ -614,55 +704,134 @@ export class BoardRenderer {
     ctx.arc(x, y, radius, 0, Math.PI * 2);
     ctx.fill();
 
-    // Reset shadow
+    // Reset shadow so overlays don't double-shadow
     ctx.shadowColor = 'transparent';
     ctx.shadowBlur = 0;
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
 
-    // Specular highlight (top-left bright spot)
-    const specGrad = ctx.createRadialGradient(
-      x - radius * 0.3, y - radius * 0.35, 0,
-      x - radius * 0.3, y - radius * 0.35, radius * 0.5
-    );
     if (color === BLACK) {
-      specGrad.addColorStop(0, 'rgba(100,220,190,0.3)');
-      specGrad.addColorStop(0.5, 'rgba(45,212,168,0.12)');
-      specGrad.addColorStop(1, 'transparent');
-    } else {
-      specGrad.addColorStop(0, 'rgba(255,255,255,0.7)');
-      specGrad.addColorStop(0.3, 'rgba(240,248,255,0.3)');
-      specGrad.addColorStop(0.6, 'rgba(255,255,255,0.1)');
-      specGrad.addColorStop(1, 'transparent');
-    }
-    ctx.fillStyle = specGrad;
-    ctx.beginPath();
-    ctx.arc(x, y, radius, 0, Math.PI * 2);
-    ctx.fill();
+      // ── Iridescent green/teal shimmer — color-shift overlay ──
+      const iriGrad = ctx.createRadialGradient(
+        x - radius * 0.15, y - radius * 0.2, radius * 0.1,
+        x + radius * 0.1, y + radius * 0.15, radius * 0.95
+      );
+      iriGrad.addColorStop(0, 'rgba(80,220,180,0.18)');  // bright teal center
+      iriGrad.addColorStop(0.35, 'rgba(50,180,140,0.10)'); // green mid
+      iriGrad.addColorStop(0.65, 'rgba(30,150,120,0.06)'); // deep teal fade
+      iriGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = iriGrad;
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fill();
 
-    // Edge rim light (subtle bottom-right for 3D)
-    if (color === BLACK) {
+      // ── Specular highlight — top-left bright spot (teal-green) ──
+      const specGrad = ctx.createRadialGradient(
+        x - radius * 0.28, y - radius * 0.33, 0,
+        x - radius * 0.28, y - radius * 0.33, radius * 0.45
+      );
+      specGrad.addColorStop(0, 'rgba(120,240,200,0.38)');
+      specGrad.addColorStop(0.3, 'rgba(70,210,170,0.18)');
+      specGrad.addColorStop(0.6, 'rgba(45,180,140,0.06)');
+      specGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = specGrad;
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // ── Environment reflection arc — curved highlight band ──
+      ctx.save();
+      ctx.globalAlpha = 0.14;
+      ctx.strokeStyle = 'rgba(100,230,190,1)';
+      ctx.lineWidth = radius * 0.08;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.arc(x, y, radius * 0.72, -Math.PI * 0.75, -Math.PI * 0.2);
+      ctx.stroke();
+      ctx.restore();
+
+      // ── Rim light — bottom-right teal edge for 3D depth ──
       const rimGrad = ctx.createRadialGradient(
-        x + radius * 0.4, y + radius * 0.4, 0,
+        x + radius * 0.38, y + radius * 0.38, 0,
         x, y, radius
       );
-      rimGrad.addColorStop(0, 'rgba(45,212,168,0.22)');
-      rimGrad.addColorStop(0.6, 'transparent');
+      rimGrad.addColorStop(0, 'rgba(50,200,160,0.2)');
+      rimGrad.addColorStop(0.5, 'rgba(40,160,130,0.06)');
+      rimGrad.addColorStop(1, 'transparent');
       ctx.fillStyle = rimGrad;
       ctx.beginPath();
       ctx.arc(x, y, radius, 0, Math.PI * 2);
       ctx.fill();
-    } else {
-      // White stone — cool-white outer glow (pearlescent)
-      ctx.save();
-      ctx.shadowColor = 'rgba(220,240,255,0.2)';
-      ctx.shadowBlur = 6;
-      ctx.strokeStyle = 'rgba(220,240,255,0.18)';
-      ctx.lineWidth = 1.5;
+
+      // ── Inner glow ring — subtle placed-stone indicator ──
+      ctx.strokeStyle = 'rgba(60,210,170,0.12)';
+      ctx.lineWidth = radius * 0.06;
       ctx.beginPath();
-      ctx.arc(x, y, radius + 2, 0, Math.PI * 2);
+      ctx.arc(x, y, radius * 0.82, 0, Math.PI * 2);
+      ctx.stroke();
+
+    } else {
+      // ── WHITE STONE overlays ──
+
+      // ── Nacre color-shift at edges — pink/blue iridescence ──
+      const edgeGrad = ctx.createRadialGradient(
+        x, y, radius * 0.5,
+        x, y, radius
+      );
+      edgeGrad.addColorStop(0, 'transparent');
+      edgeGrad.addColorStop(0.6, 'rgba(200,180,220,0.06)');  // subtle lavender
+      edgeGrad.addColorStop(0.8, 'rgba(180,200,240,0.10)');  // blue shift
+      edgeGrad.addColorStop(0.92, 'rgba(220,180,200,0.08)'); // pink shift
+      edgeGrad.addColorStop(1, 'rgba(190,170,210,0.05)');    // fade
+      ctx.fillStyle = edgeGrad;
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // ── Soft inner glow — translucent luminosity ──
+      const innerGlow = ctx.createRadialGradient(
+        x, y, 0,
+        x, y, radius * 0.7
+      );
+      innerGlow.addColorStop(0, 'rgba(255,255,250,0.25)');
+      innerGlow.addColorStop(0.5, 'rgba(255,252,245,0.10)');
+      innerGlow.addColorStop(1, 'transparent');
+      ctx.fillStyle = innerGlow;
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // ── Specular highlight — crisp top-left ──
+      const specGrad = ctx.createRadialGradient(
+        x - radius * 0.28, y - radius * 0.33, 0,
+        x - radius * 0.28, y - radius * 0.33, radius * 0.42
+      );
+      specGrad.addColorStop(0, 'rgba(255,255,255,0.85)');
+      specGrad.addColorStop(0.25, 'rgba(255,255,255,0.35)');
+      specGrad.addColorStop(0.55, 'rgba(240,248,255,0.12)');
+      specGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = specGrad;
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // ── Pearlescent outer glow ring ──
+      ctx.save();
+      ctx.shadowColor = 'rgba(210,225,245,0.18)';
+      ctx.shadowBlur = 5;
+      ctx.strokeStyle = 'rgba(210,225,245,0.15)';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.arc(x, y, radius + 1.5, 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
+
+      // ── Inner glow ring — subtle placed-stone indicator ──
+      ctx.strokeStyle = 'rgba(220,215,240,0.14)';
+      ctx.lineWidth = radius * 0.05;
+      ctx.beginPath();
+      ctx.arc(x, y, radius * 0.82, 0, Math.PI * 2);
+      ctx.stroke();
     }
 
     ctx.restore();
@@ -751,8 +920,8 @@ export class BoardRenderer {
     const innerR = this.boardPixels * 0.18;
 
     ctx.save();
-    ctx.globalAlpha = 0.06;
-    ctx.strokeStyle = '#4a90b0';
+    ctx.globalAlpha = 0.09;
+    ctx.strokeStyle = '#5aaac8';
     ctx.lineWidth = 0.8;
 
     // Outer circle
@@ -797,8 +966,40 @@ export class BoardRenderer {
     // Center dot
     ctx.beginPath();
     ctx.arc(cx, cy, 2, 0, Math.PI * 2);
-    ctx.fillStyle = '#4a90b0';
+    ctx.fillStyle = '#5aaac8';
     ctx.fill();
+
+    // Corner rune flourishes — small arc patterns near board corners
+    const cornerInset = this.boardPixels * 0.08;
+    const corners = [
+      [cornerInset, cornerInset, 0],
+      [this.boardPixels - cornerInset, cornerInset, Math.PI * 0.5],
+      [this.boardPixels - cornerInset, this.boardPixels - cornerInset, Math.PI],
+      [cornerInset, this.boardPixels - cornerInset, Math.PI * 1.5]
+    ];
+    ctx.globalAlpha = 0.07;
+    for (const [rx, ry, rot] of corners) {
+      ctx.save();
+      ctx.translate(rx, ry);
+      ctx.rotate(rot);
+      // Small corner arc
+      ctx.beginPath();
+      ctx.arc(0, 0, this.boardPixels * 0.05, 0, Math.PI * 0.5);
+      ctx.stroke();
+      // Inner arc
+      ctx.beginPath();
+      ctx.arc(0, 0, this.boardPixels * 0.03, 0, Math.PI * 0.7);
+      ctx.stroke();
+      // Tick marks
+      for (let j = 0; j < 3; j++) {
+        const a = (Math.PI * 0.5 * j) / 3;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(a) * this.boardPixels * 0.05, Math.sin(a) * this.boardPixels * 0.05);
+        ctx.lineTo(Math.cos(a) * this.boardPixels * 0.065, Math.sin(a) * this.boardPixels * 0.065);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
 
     ctx.restore();
   }

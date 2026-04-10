@@ -154,19 +154,25 @@ body {
 }
 
 .btn-pass {
-  background: var(--surface);
+  background: linear-gradient(135deg, rgba(20,20,35,0.9), rgba(30,30,50,0.9));
   color: var(--foreground-muted);
-  border: 1px solid var(--border);
-  font-size: 13px;
-  padding: 10px 24px;
+  border: 1px solid rgba(0,212,212,0.2);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 28px;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   position: relative;
+  transition: all 0.3s var(--ease-out);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
 .btn-pass:hover {
-  background: var(--surface-hover);
+  background: linear-gradient(135deg, rgba(0,212,212,0.15), rgba(0,180,180,0.08));
   color: var(--foreground);
+  border-color: rgba(0,212,212,0.4);
+  box-shadow: 0 0 16px rgba(0,212,212,0.15), 0 2px 8px rgba(0,0,0,0.3);
+  transform: translateY(-1px);
 }
 
 .btn-pass-hint {
@@ -208,7 +214,7 @@ body {
   left: 0;
   right: 0;
   bottom: -60px;
-  background: url('/design/homepage-splash.png?v=2') center center / cover no-repeat;
+  background: url('../design/homepage-splash.png?v=3') center center / cover no-repeat;
   animation: heroEntrance 1.2s cubic-bezier(0.25,0.46,0.45,0.94) forwards,
              heroSlowZoom 30s ease-in-out 1.2s infinite alternate;
 }
@@ -312,6 +318,19 @@ body {
 
 .splash-btn:active {
   transform: scale(0.97);
+}
+
+.splash-btn {
+  animation: splashBtnEntrance 0.6s ease-out backwards;
+}
+
+.splash-btn:nth-child(1) { animation-delay: 0.8s; }
+.splash-btn:nth-child(2) { animation-delay: 1.0s; }
+.splash-btn:nth-child(3) { animation-delay: 1.2s; }
+
+@keyframes splashBtnEntrance {
+  0% { opacity: 0; transform: translateX(30px); }
+  100% { opacity: 1; transform: translateX(0); }
 }
 
 .splash-btn-primary {
@@ -661,18 +680,48 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   height: 100vh;
   padding: 20px 24px;
-  overflow-y: auto;
-  gap: 12px;
+  overflow: hidden;
+  gap: 8px;
   position: relative;
-  /* Atmospheric background */
+  /* Brighter atmospheric background */
   background:
-    radial-gradient(ellipse 80% 60% at 50% 30%, rgba(212,160,23,0.04) 0%, transparent 70%),
-    radial-gradient(ellipse 60% 40% at 20% 80%, rgba(139,92,246,0.03) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 70%, rgba(59,130,246,0.03) 0%, transparent 60%),
-    linear-gradient(180deg, #08080e 0%, #0c0c16 30%, #0e0e18 50%, #0a0a12 80%, #060610 100%);
+    radial-gradient(ellipse 80% 60% at 50% 30%, rgba(212,160,23,0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 20% 80%, rgba(139,92,246,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 70%, rgba(59,130,246,0.05) 0%, transparent 60%),
+    linear-gradient(180deg, #0c0c14 0%, #10101c 30%, #121220 50%, #0e0e18 80%, #0a0a14 100%);
+}
+
+.champ-select-top {
+  text-align: center;
+  padding-top: 12px;
+  flex-shrink: 0;
+}
+
+.champ-select-body {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 20px;
+  flex: 1;
+  width: 100%;
+  max-width: 1400px;
+  min-height: 0;
+  padding: 0 8px;
+}
+
+.champ-grid-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-width: 0;
+  transition: flex 0.35s ease;
+}
+
+.champ-select-body.detail-open .champ-grid-panel {
+  flex: 0 0 auto;
 }
 
 /* Back button */
@@ -714,14 +763,45 @@ body {
 }
 
 #champ-grid {
-  display: flex;
-  flex-wrap: nowrap;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   gap: 12px;
-  justify-content: center;
-  align-items: stretch;
-  max-width: 1100px;
+  justify-items: center;
+  align-items: start;
   width: 100%;
-  padding: 0 16px;
+  padding: 0 8px;
+  transition: all 0.35s ease;
+}
+
+/* Smaller cards when detail panel is open */
+.champ-select-body.detail-open #champ-grid {
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.champ-select-body.detail-open .champ-card,
+.champ-select-body.detail-open .champ-card.yugioh-frame {
+  width: 120px;
+  height: 200px;
+  flex: none;
+}
+
+.champ-select-body.detail-open .champ-card-portrait,
+.champ-select-body.detail-open .champ-card.yugioh-frame .champ-card-portrait {
+  height: 60%;
+}
+
+.champ-select-body.detail-open .champ-card-name,
+.champ-select-body.detail-open .champ-card-name-banner .champ-card-name {
+  font-size: 12px;
+}
+
+.champ-select-body.detail-open .champ-card-title {
+  font-size: 8px;
+}
+
+.champ-select-body.detail-open .champ-card-info {
+  display: none;
 }
 
 .champ-card {
@@ -797,16 +877,16 @@ body {
   animation: champSelectGlow 1.5s ease-in-out infinite alternate;
 }
 
-/* Dim unselected cards when one is selected */
+/* Unselected cards when one is selected — subtle dim, not hidden */
 .champ-card.dimmed {
-  opacity: 0.5;
-  filter: grayscale(0.3);
+  opacity: 0.65;
+  filter: grayscale(0.2);
   transform: none;
   transition: all 300ms ease;
 }
 
 .champ-card.dimmed:hover {
-  opacity: 0.8;
+  opacity: 0.9;
   filter: none;
   transform: translateY(-8px) scale(1.05);
 }
@@ -873,60 +953,71 @@ body {
   white-space: nowrap;
 }
 
-/* Champion Detail Panel — glassmorphism */
+/* Champion Detail Panel — glassmorphism, slides in from right */
 .champ-detail {
-  max-width: 640px;
-  width: 100%;
-  background: rgba(14, 14, 24, 0.8);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.08);
+  flex: 0 0 480px;
+  max-width: 520px;
+  width: 480px;
+  background: rgba(16, 16, 28, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: var(--radius-md);
-  padding: 16px 20px;
+  padding: 0;
   animation: champDetailSlideIn 0.35s var(--ease-out);
-  transform-origin: top center;
+  transform-origin: right center;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes champDetailSlideIn {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% { opacity: 0; transform: translateX(30px); }
+  100% { opacity: 1; transform: translateX(0); }
 }
 
 .champ-detail-portrait-banner {
   width: 100%;
-  height: 100px;
+  height: 160px;
   position: relative;
   overflow: hidden;
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-  margin-bottom: 10px;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  flex-shrink: 0;
 }
 
 .champ-detail-portrait-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 10%;
+  object-position: center 15%;
   display: block;
-  mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+}
+
+.champ-detail-portrait-fade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
 
 .champ-detail-header {
   text-align: center;
-  margin-bottom: 12px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid var(--border);
+  margin-bottom: 10px;
+  padding: 0 20px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
 .champ-detail-name {
   font-family: var(--font-heading);
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
+  text-shadow: 0 0 20px currentColor;
 }
 
 .champ-detail-title {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--foreground-muted);
+  letter-spacing: 0.5px;
 }
 
 .champ-detail-pitch {
@@ -937,29 +1028,54 @@ body {
 }
 
 .champ-passive-display {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: rgba(212,160,23,0.06);
+  border: 1px solid rgba(212,160,23,0.2);
   border-left: 3px solid var(--chi-gold);
   border-radius: var(--radius-sm);
-  padding: 8px 12px;
-  margin-bottom: 12px;
-  font-size: 12px;
-  color: var(--foreground-muted);
+  padding: 10px 14px;
+  margin: 0 16px 12px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.passive-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
 }
 
 .passive-label {
   font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
   color: var(--chi-gold);
-  margin-right: 6px;
+  background: rgba(212,160,23,0.15);
+  padding: 2px 6px;
+  border-radius: 3px;
 }
 
 .passive-name {
   font-weight: 600;
+  font-size: 14px;
   color: var(--foreground);
-  margin-right: 4px;
+}
+
+.passive-desc {
+  font-size: 13px;
+  color: var(--foreground-muted);
+  line-height: 1.5;
+}
+
+.champ-detail-spells-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--foreground-dim);
+  padding: 0 20px;
+  margin-bottom: 8px;
 }
 
 .champ-spells-row {
@@ -967,76 +1083,145 @@ body {
   gap: 10px;
   justify-content: center;
   flex-wrap: wrap;
+  padding: 0 16px;
 }
 
 .champ-spell-card {
-  width: 160px;
-  background: var(--bg-base);
-  border: 1px solid var(--border);
+  flex: 1 1 130px;
+  min-width: 120px;
+  max-width: 200px;
+  background: rgba(20, 20, 35, 0.9);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: var(--radius-sm);
-  padding: 10px 12px;
+  padding: 0;
   position: relative;
   overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.champ-spell-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+/* Colored top bar matching spell category */
+.champ-spell-cat-bar {
+  width: 100%;
+  height: 3px;
+  flex-shrink: 0;
+}
+
+/* Remove old border-left category indicators */
+.champ-spell-card.spell-cat-offensive,
+.champ-spell-card.spell-cat-defensive,
+.champ-spell-card.spell-cat-info,
+.champ-spell-card.spell-cat-terrain,
+.champ-spell-card.spell-cat-trap {
+  border-left: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Category glow on hover */
+.champ-spell-card.spell-cat-offensive:hover { box-shadow: 0 4px 16px rgba(220,38,38,0.2); }
+.champ-spell-card.spell-cat-defensive:hover { box-shadow: 0 4px 16px rgba(13,148,136,0.2); }
+.champ-spell-card.spell-cat-info:hover { box-shadow: 0 4px 16px rgba(139,92,246,0.2); }
+.champ-spell-card.spell-cat-terrain:hover { box-shadow: 0 4px 16px rgba(5,150,105,0.2); }
+.champ-spell-card.spell-cat-trap:hover { box-shadow: 0 4px 16px rgba(217,119,6,0.2); }
+
+/* Gold diamond cost badge — top-right corner */
+.champ-spell-cost-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 30px;
+  height: 30px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 13px;
+  color: #1a0f00;
+  text-shadow: 0 1px 0 rgba(255,215,0,0.5);
+}
+
+.champ-spell-cost-badge::before {
+  content: '';
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(135deg, #B8860B, #FFD700, #D4A017);
+  transform: rotate(45deg);
+  border-radius: 3px;
+  box-shadow: 0 2px 8px rgba(212,160,23,0.6);
+  z-index: -1;
 }
 
 .champ-spell-art-preview {
   width: 100%;
-  height: 60px;
-  border-radius: 4px;
-  margin-bottom: 8px;
+  height: 50px;
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
-.champ-spell-card.spell-cat-offensive { border-left: 3px solid var(--spell-offensive); }
-.champ-spell-card.spell-cat-defensive { border-left: 3px solid var(--spell-defensive); }
-.champ-spell-card.spell-cat-info { border-left: 3px solid var(--spell-info); }
-.champ-spell-card.spell-cat-terrain { border-left: 3px solid var(--spell-terrain); }
-.champ-spell-card.spell-cat-trap { border-left: 3px solid var(--spell-trap); }
-
-.champ-spell-cost {
-  position: absolute;
-  top: 6px;
-  right: 8px;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 14px;
-  color: var(--chi-gold);
+.champ-spell-body {
+  padding: 8px 10px 10px;
 }
 
 .champ-spell-name {
   font-family: var(--font-heading);
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--foreground);
-  margin-bottom: 2px;
+  margin-bottom: 3px;
 }
 
-.champ-spell-uses {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--foreground-dim);
+.champ-spell-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   margin-bottom: 6px;
 }
 
-.champ-spell-desc {
+.champ-spell-uses {
   font-size: 11px;
-  color: var(--foreground-muted);
-  line-height: 1.4;
+  font-weight: 700;
+  color: var(--foreground-dim);
+  background: rgba(255,255,255,0.06);
+  padding: 1px 5px;
+  border-radius: 3px;
 }
 
-.champ-spell-hidden {
-  font-size: 8px;
+.champ-spell-cat-label {
+  font-size: 9px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--foreground-dim);
-  background: var(--surface);
-  padding: 1px 5px;
+}
+
+.spell-cat-offensive .champ-spell-cat-label { color: var(--spell-offensive); }
+.spell-cat-defensive .champ-spell-cat-label { color: var(--spell-defensive); }
+.spell-cat-info .champ-spell-cat-label { color: var(--spell-info); }
+.spell-cat-terrain .champ-spell-cat-label { color: var(--spell-terrain); }
+.spell-cat-trap .champ-spell-cat-label { color: var(--spell-trap); }
+
+.champ-spell-desc {
+  font-size: 13px;
+  color: var(--foreground-muted);
+  line-height: 1.5;
+}
+
+.champ-spell-hidden {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--spell-info);
+  background: rgba(139,92,246,0.15);
+  padding: 1px 6px;
   border-radius: 3px;
-  margin-top: 4px;
-  display: inline-block;
 }
 
 /* Spell uses badge in hand */
@@ -1083,9 +1268,14 @@ body {
 
 /* Lock In button */
 .btn-lock-in {
-  min-width: 220px;
+  width: calc(100% - 32px);
+  margin: auto 16px 16px;
   transition: all 300ms ease;
   position: relative;
+  font-size: 16px;
+  padding: 14px 24px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
 }
 
 .btn-lock-in:disabled {
@@ -1096,18 +1286,25 @@ body {
   color: var(--foreground-dim);
   border: 1px solid var(--border);
   font-size: 15px;
-  padding: 14px 40px;
+  padding: 14px 24px;
 }
 
 .btn-lock-in.btn-lock-in-active {
-  background: var(--chi-gold);
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--lock-champ-color, var(--chi-gold)) 70%, var(--chi-gold)),
+    var(--lock-champ-color, var(--chi-gold)),
+    color-mix(in srgb, var(--lock-champ-color, var(--chi-gold)) 70%, #FFD700)
+  );
   color: var(--bg-deep);
   font-weight: 700;
+  font-size: 17px;
+  letter-spacing: 0.5px;
   border: 1px solid color-mix(in srgb, var(--lock-champ-color, var(--chi-gold)) 40%, var(--chi-gold));
   box-shadow:
-    0 0 16px color-mix(in srgb, var(--lock-champ-color, var(--chi-gold)) 30%, transparent),
-    0 4px 12px rgba(0,0,0,0.3);
+    0 0 20px color-mix(in srgb, var(--lock-champ-color, var(--chi-gold)) 35%, transparent),
+    0 4px 16px rgba(0,0,0,0.3);
   animation: lockInPulse 2s ease-in-out infinite;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
 @keyframes lockInPulse {
@@ -1115,18 +1312,43 @@ body {
   50% { box-shadow: 0 0 24px color-mix(in srgb, var(--lock-champ-color, var(--chi-gold)) 50%, transparent), 0 4px 16px rgba(0,0,0,0.3); }
 }
 
-@media (max-width: 767px) {
-  #champ-grid { gap: 8px; }
-  .champ-card { width: 130px; height: 220px; flex: 0 1 130px; }
-  .champ-card.yugioh-frame { width: 130px; height: 225px; flex: 0 1 130px; }
-  .champ-card-portrait { height: 60%; }
-  .champ-card.yugioh-frame .champ-card-portrait { height: 60%; }
-  .champ-card-name { font-size: 14px; }
-  .champ-card-name-banner .champ-card-name { font-size: 13px; }
+@media (max-width: 900px) {
+  .champ-select-body {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .champ-grid-panel {
+    flex: 0 0 auto;
+  }
+  #champ-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+  .champ-card, .champ-card.yugioh-frame {
+    width: 100px;
+    height: 170px;
+  }
+  .champ-card-portrait, .champ-card.yugioh-frame .champ-card-portrait { height: 55%; }
+  .champ-card-name { font-size: 12px; }
+  .champ-card-name-banner .champ-card-name { font-size: 11px; }
+  .champ-card-info { display: none; }
   .champ-card-difficulty { font-size: 8px; }
-  .champ-detail { padding: 12px; }
+  .champ-detail {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: 100%;
+  }
   .champ-spells-row { flex-direction: column; align-items: center; }
-  .champ-spell-card { width: 100%; max-width: 280px; }
+  .champ-spell-card { max-width: 320px; min-width: 280px; }
+  .champ-select-body.detail-open .champ-card,
+  .champ-select-body.detail-open .champ-card.yugioh-frame {
+    width: 90px;
+    height: 150px;
+  }
+  .champ-select-body.detail-open .champ-card-name,
+  .champ-select-body.detail-open .champ-card-name-banner .champ-card-name {
+    font-size: 10px;
+  }
 }
 
 /* ── TCG Card Frame (shared between draft and in-hand) ── */
@@ -2317,8 +2539,42 @@ body {
 }
 
 .chi-icon {
-  font-size: 16px;
-  color: var(--chi-gold);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.chi-gem {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  background: linear-gradient(135deg, #F5D060 0%, #D4A017 40%, #A67C00 70%, #D4A017 100%);
+  transform: rotate(45deg);
+  border-radius: 2px;
+  box-shadow:
+    0 0 6px rgba(212, 160, 23, 0.5),
+    0 0 14px rgba(212, 160, 23, 0.25),
+    inset 0 0 4px rgba(255, 230, 140, 0.4);
+}
+
+.chi-gem-shine {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: linear-gradient(135deg, rgba(255, 245, 200, 0.7) 0%, transparent 60%);
+  transform: rotate(45deg);
+  top: 3px;
+  left: 5px;
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+.chi-count {
+  font-variant-numeric: tabular-nums;
 }
 
 #phase-label {
@@ -2370,7 +2626,10 @@ body {
 #spell-hand {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0;
+  align-items: center;
+  padding: 8px 0 4px;
+  position: relative;
 }
 
 .spell-hand-empty {
@@ -2380,10 +2639,16 @@ body {
   padding: 16px 0;
 }
 
-/* In-hand cards: compact TCG cards */
+/* In-hand cards: compact TCG cards with cyan glow */
 .spell-card {
   width: 100px;
   height: 140px;
+  /* Cyan/teal glow border replacing gold frame */
+  background: linear-gradient(160deg, rgba(0,212,212,0.6) 0%, rgba(0,180,200,0.8) 50%, rgba(0,212,212,0.6) 100%);
+  box-shadow:
+    0 0 8px rgba(0,212,212,0.35),
+    0 0 20px rgba(0,212,212,0.12),
+    0 4px 12px rgba(0,0,0,0.5);
 }
 
 .spell-card .tcg-card-art {
@@ -2413,13 +2678,20 @@ body {
 }
 
 .spell-card:hover {
-  transform: translateY(-4px) scale(1.05);
+  transform: translateX(8px) rotate(0deg) scale(1.08) !important;
   z-index: 10;
+  box-shadow:
+    0 0 14px rgba(0,212,212,0.5),
+    0 0 30px rgba(0,212,212,0.2),
+    0 8px 20px rgba(0,0,0,0.5);
 }
 
 .spell-card.spell-selected {
-  box-shadow: 0 0 16px var(--chi-gold-glow), 0 0 30px rgba(212,160,23,0.12);
-  transform: translateY(-4px) scale(1.08);
+  box-shadow:
+    0 0 16px rgba(0,212,212,0.6),
+    0 0 32px rgba(0,212,212,0.25),
+    0 0 8px var(--chi-gold-glow);
+  transform: translateX(10px) rotate(0deg) scale(1.1) !important;
 }
 
 .spell-card.spell-disabled {
@@ -2543,12 +2815,20 @@ body {
   gap: 16px;
   padding: 16px;
   overflow: hidden;
+  animation: scoringFadeIn 0.8s ease-out;
+}
+
+@keyframes scoringFadeIn {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
 }
 
 #winner-text {
   font-family: var(--font-heading);
-  font-size: 32px;
+  font-size: 36px;
   font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
   color: var(--chi-gold);
 }
 
@@ -2621,7 +2901,7 @@ body {
   }
 
   #spell-hand {
-    flex-direction: row;
+    flex-direction: column;
   }
 
   .spell-card {
@@ -3163,35 +3443,105 @@ body {
   transform: scale(0.98) !important;
 }
 
-/* ── Spell card in-hand stacking ── */
+/* ── Spell card in-hand fanned stacking ── */
 #spell-hand .spell-card {
-  transition: all var(--duration-fast) var(--ease-out), box-shadow var(--duration-normal) ease;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+  transform-origin: bottom center;
 }
 
+/* Overlapping vertical fan */
 #spell-hand .spell-card:not(:first-child) {
-  margin-top: -16px;
+  margin-top: -32px;
 }
 
+/* Fan rotation: 1st tilts left, middle straight, 3rd tilts right */
+#spell-hand .spell-card:nth-child(1) {
+  transform: rotate(-5deg) translateX(-4px);
+  z-index: 1;
+}
+#spell-hand .spell-card:nth-child(2) {
+  transform: rotate(0deg);
+  z-index: 2;
+}
+#spell-hand .spell-card:nth-child(3) {
+  transform: rotate(5deg) translateX(4px);
+  z-index: 3;
+}
+
+/* Hover: lift out and un-rotate */
 #spell-hand .spell-card:hover {
   z-index: 10;
+  margin-top: -8px;
+  margin-bottom: 24px;
+}
+
+#spell-hand .spell-card:first-child:hover {
   margin-top: 0;
-  margin-bottom: 0;
+  margin-bottom: 24px;
 }
 
 #spell-hand .spell-card.spell-selected {
   z-index: 11;
+  margin-top: -8px;
+  margin-bottom: 24px;
+}
+
+#spell-hand .spell-card:first-child.spell-selected {
   margin-top: 0;
+  margin-bottom: 24px;
 }
 
 #spell-hand .spell-card:active:not(.spell-disabled) {
-  transform: translateY(-2px) scale(1.02) !important;
+  transform: translateX(6px) rotate(0deg) scale(1.02) !important;
 }
 
 /* ── Chi display animation ── */
 @keyframes chiPulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.15); }
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.2); }
+  50%  { transform: scale(1.1); }
   100% { transform: scale(1); }
+}
+
+@keyframes chiGemFlash {
+  0% {
+    box-shadow:
+      0 0 6px rgba(212, 160, 23, 0.5),
+      0 0 14px rgba(212, 160, 23, 0.25),
+      inset 0 0 4px rgba(255, 230, 140, 0.4);
+  }
+  40% {
+    box-shadow:
+      0 0 12px rgba(245, 208, 96, 0.8),
+      0 0 28px rgba(212, 160, 23, 0.5),
+      0 0 48px rgba(212, 160, 23, 0.2),
+      inset 0 0 8px rgba(255, 245, 200, 0.6);
+  }
+  100% {
+    box-shadow:
+      0 0 6px rgba(212, 160, 23, 0.5),
+      0 0 14px rgba(212, 160, 23, 0.25),
+      inset 0 0 4px rgba(255, 230, 140, 0.4);
+  }
+}
+
+@keyframes chiGemIdle {
+  0%, 100% {
+    box-shadow:
+      0 0 6px rgba(212, 160, 23, 0.5),
+      0 0 14px rgba(212, 160, 23, 0.25),
+      inset 0 0 4px rgba(255, 230, 140, 0.4);
+  }
+  50% {
+    box-shadow:
+      0 0 8px rgba(212, 160, 23, 0.6),
+      0 0 18px rgba(212, 160, 23, 0.3),
+      inset 0 0 5px rgba(255, 230, 140, 0.5);
+  }
+}
+
+.chi-gem {
+  animation: chiGemIdle 3s ease-in-out infinite;
 }
 
 #chi-display {
@@ -3202,12 +3552,23 @@ body {
   animation: chiPulse 0.4s var(--ease-out);
 }
 
+#chi-display.chi-changed .chi-gem {
+  animation: chiGemFlash 0.5s ease-out, chiGemIdle 3s ease-in-out 0.5s infinite;
+}
+
 .chi-icon {
   transition: transform 0.3s var(--ease-out), filter 0.3s ease;
 }
 
 #chi-display:hover .chi-icon {
-  filter: drop-shadow(0 0 4px rgba(212,160,23,0.5));
+  filter: drop-shadow(0 0 6px rgba(212, 160, 23, 0.6));
+}
+
+#chi-display:hover .chi-gem {
+  box-shadow:
+    0 0 10px rgba(245, 208, 96, 0.7),
+    0 0 22px rgba(212, 160, 23, 0.4),
+    inset 0 0 6px rgba(255, 245, 200, 0.5);
 }
 
 /* ── Turn pill transition ── */
@@ -3225,8 +3586,15 @@ body {
 
 /* ── Scoring screen improvements ── */
 #winner-text {
-  animation: titleFloat 3s ease-in-out infinite;
-  text-shadow: 0 0 30px rgba(212,160,23,0.2);
+  animation: winnerEntrance 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+             titleFloat 3s ease-in-out 1s infinite;
+  text-shadow: 0 0 30px rgba(212,160,23,0.3), 0 0 60px rgba(212,160,23,0.1);
+}
+
+@keyframes winnerEntrance {
+  0% { opacity: 0; transform: scale(0.5) translateY(20px); filter: blur(8px); }
+  60% { opacity: 1; transform: scale(1.1) translateY(-5px); filter: blur(0); }
+  100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
 }
 
 .score-value {
@@ -3234,10 +3602,19 @@ body {
 }
 
 .score-column {
-  padding: 12px 20px;
+  padding: 16px 24px;
   border-radius: var(--radius-md);
   background: var(--surface);
   border: 1px solid var(--border);
+  animation: scoreSlideUp 0.6s ease-out backwards;
+}
+
+.score-column:first-child { animation-delay: 0.4s; }
+.score-column:last-child { animation-delay: 0.6s; }
+
+@keyframes scoreSlideUp {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 /* ── Board area ambient glow ── */
@@ -3715,15 +4092,15 @@ body {
   animation: cardRevealGlow 2s ease-in-out;
 }
 
-/* Dimmed state for yugioh-frame cards */
+/* Dimmed state for yugioh-frame cards — subtle, not hidden */
 .champ-card.yugioh-frame.dimmed {
-  opacity: 0.5;
-  filter: grayscale(0.3);
+  opacity: 0.65;
+  filter: grayscale(0.2);
   transform: none;
   transition: all 300ms ease;
 }
 .champ-card.yugioh-frame.dimmed:hover {
-  opacity: 0.8;
+  opacity: 0.9;
   filter: none;
   transform: translateY(-8px) scale(1.05);
 }
@@ -4238,20 +4615,19 @@ body {
 /* ── Responsive adjustments for Yu-Gi-Oh! cards ── */
 @media (max-width: 640px) {
   .champ-card.yugioh-frame {
-    width: 130px;
-    height: 225px;
-    flex: 0 1 130px;
+    width: 90px;
+    height: 160px;
   }
   .champ-card.yugioh-frame .champ-card-portrait {
-    height: 60%;
+    height: 55%;
   }
   .champ-card-name-banner .champ-card-name {
-    font-size: 13px;
+    font-size: 10px;
   }
   .champ-card-stars .rarity-star {
-    font-size: 8px;
+    font-size: 7px;
   }
   .champ-card-difficulty {
-    font-size: 8px;
+    font-size: 7px;
   }
 }

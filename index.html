@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AniGO</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css?v=2">
 </head>
 <body>
 
@@ -41,11 +41,16 @@
   <!-- CHAMPION SELECT SCREEN -->
   <div id="champion-select" class="screen hidden">
     <button id="btn-back-title" class="btn-back" aria-label="Back">← 뒤로</button>
-    <div class="champ-select-header" id="champ-select-header"></div>
-    <div class="champ-select-sub" id="champ-select-sub"></div>
-    <div id="champ-grid"></div>
-    <div id="champ-detail" class="champ-detail hidden"></div>
-    <button id="btn-confirm-champ" class="btn btn-primary btn-lock-in" disabled></button>
+    <div class="champ-select-top">
+      <div class="champ-select-header" id="champ-select-header"></div>
+      <div class="champ-select-sub" id="champ-select-sub"></div>
+    </div>
+    <div class="champ-select-body">
+      <div class="champ-grid-panel">
+        <div id="champ-grid"></div>
+      </div>
+      <div id="champ-detail" class="champ-detail hidden"></div>
+    </div>
   </div>
 
   <!-- GAME SCREEN -->
@@ -57,7 +62,7 @@
         <span id="turn-number"></span>
       </div>
       <div class="header-right">
-        <span id="chi-display"><span class="chi-icon">&#x2B22;</span> 3</span>
+        <span id="chi-display"><span class="chi-icon"><span class="chi-gem"></span><span class="chi-gem-shine"></span></span> <span class="chi-count">3</span></span>
         <span id="phase-label"></span>
         <button id="btn-help-ingame" class="btn-help" aria-label="?">?</button>
         <div class="header-lang-selector lang-selector" id="header-lang-selector"></div>
@@ -122,6 +127,6 @@
     <div class="modal-content glass-panel" id="how-to-play-content"></div>
   </div>
 
-  <script type="module" src="js/ui.js"></script>
+  <script type="module" src="js/ui.js?v=4"></script>
 </body>
 </html>

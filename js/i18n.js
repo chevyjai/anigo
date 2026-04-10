@@ -118,6 +118,40 @@ const STRINGS = {
     spellWildfire: '들불',
     spellThunderVeil: '뇌운장막',
 
+    // Spell descriptions (long)
+    spellDescStoneSkin: '5턴 동안 돌을 따낼 수 없게 만듭니다. 비밀.',
+    spellDescSanctuary: '3x3 영역을 4턴 동안 따냄으로부터 보호합니다.',
+    spellDescEarthenWall: '연속 3개의 교차점을 영구적으로 막습니다. 집 경계로 작용합니다.',
+    spellDescShatter: '활로가 1개인 적 돌 하나를 파괴합니다. 기를 얻습니다.',
+    spellDescSmolder: '3턴 동안 매 턴 활로를 1개씩 줄이는 숨겨진 효과를 부착합니다.',
+    spellDescInferno: '범위 2 이내의 단수 상태인 모든 적 돌을 즉시 따냅니다.',
+    spellDescMirage: '유령 돌을 놓습니다. 상대에게 진짜처럼 보입니다. 접촉 시 사라집니다.',
+    spellDescSnare: '숨겨진 함정. 밟은 적은 다음 턴을 잃습니다.',
+    spellDescNineLives: '이번 턴에 잡힌 그룹을 부활시킵니다. 적 돌을 밀어냅니다.',
+    spellDescVoidRift: '교차점 하나를 영구적으로 제거합니다. 돌을 파괴할 수 있습니다. 연쇄 가능.',
+    spellDescWarpGate: '두 지점을 인접하게 연결합니다. 그룹이 판을 가로질러 연결됩니다.',
+    spellDescPhaseShift: '3턴 동안 돌이 적을 무시합니다. 1턴 동안 숨겨집니다.',
+    spellDescChainLightning: '75%/50%/25% 확률로 연쇄적으로 적 돌을 파괴합니다.',
+    spellDescWildfire: '2칸 이내의 모든 돌이 50% 확률로 파괴됩니다. 아군도 포함!',
+    spellDescThunderVeil: '3턴 동안 내 돌이 상대에게 보이지 않습니다. 전장의 안개!',
+
+    // Spell descriptions (short)
+    spellDescShortStoneSkin: '돌을 보호합니다. 비밀.',
+    spellDescShortSanctuary: '3x3 따냄 금지 구역, 4턴.',
+    spellDescShortEarthenWall: '3칸 벽을 세웁니다.',
+    spellDescShortShatter: '위험한 적 돌을 파괴합니다.',
+    spellDescShortSmolder: '숨겨진 카운트다운. 활로를 태웁니다.',
+    spellDescShortInferno: '근처 단수 돌을 모두 따냅니다.',
+    spellDescShortMirage: '가짜 돌을 놓습니다. 비밀.',
+    spellDescShortSnare: '숨겨진 함정. 턴을 빼앗습니다.',
+    spellDescShortNineLives: '잡힌 그룹을 부활시킵니다.',
+    spellDescShortVoidRift: '교차점을 삭제합니다.',
+    spellDescShortWarpGate: '먼 두 지점을 연결합니다.',
+    spellDescShortPhaseShift: '돌이 무형이 됩니다.',
+    spellDescShortChainLightning: '연쇄 확률 공격.',
+    spellDescShortWildfire: '근처 모든 돌 50/50 파괴.',
+    spellDescShortThunderVeil: '3턴 동안 모든 돌을 숨깁니다.',
+
     // Spell categories
     catAttack: '공격',
     catDefense: '방어',
@@ -348,6 +382,40 @@ const STRINGS = {
     spellChainLightning: '连锁闪电',
     spellWildfire: '野火',
     spellThunderVeil: '雷幕',
+
+    // Spell descriptions (long)
+    spellDescStoneSkin: '5回合内你的棋子不可被提。隐藏。',
+    spellDescSanctuary: '保护3x3区域4回合内不被提子。',
+    spellDescEarthenWall: '永久封锁连续3个交叉点。作为地盘边界。',
+    spellDescShatter: '摧毁一颗只剩1口气的敌方棋子。获得气。',
+    spellDescSmolder: '附加隐藏效果，3回合内每回合减少1口气。',
+    spellDescInferno: '范围2内所有处于打吃状态的敌方棋子立即被提。',
+    spellDescMirage: '放置一颗幻影棋子。对手看起来像真的。触碰即消失。',
+    spellDescSnare: '隐藏陷阱。踩中的敌人失去下一回合。',
+    spellDescNineLives: '复活本回合被提的棋组。挤走敌方棋子。',
+    spellDescVoidRift: '永久移除一个交叉点。可摧毁棋子。可能连锁。',
+    spellDescWarpGate: '两个点变为相邻。棋组跨越棋盘相连。',
+    spellDescPhaseShift: '你的棋子3回合内忽略敌方。1回合内隐藏。',
+    spellDescChainLightning: '75%/50%/25%概率连锁摧毁敌方棋子。',
+    spellDescWildfire: '2格内所有棋子50%概率被摧毁。己方也受影响！',
+    spellDescThunderVeil: '你的棋子3回合内对手不可见。战争迷雾！',
+
+    // Spell descriptions (short)
+    spellDescShortStoneSkin: '保护一颗棋子。秘密。',
+    spellDescShortSanctuary: '3x3禁提区域，4回合。',
+    spellDescShortEarthenWall: '建造3格墙壁。',
+    spellDescShortShatter: '摧毁危险的敌方棋子。',
+    spellDescShortSmolder: '隐藏倒计时。烧毁气。',
+    spellDescShortInferno: '提掉附近所有打吃棋子。',
+    spellDescShortMirage: '放置假棋子。秘密。',
+    spellDescShortSnare: '隐藏陷阱。偷取回合。',
+    spellDescShortNineLives: '复活被提棋组。',
+    spellDescShortVoidRift: '删除一个交叉点。',
+    spellDescShortWarpGate: '连接两个远距离点。',
+    spellDescShortPhaseShift: '棋子变为无形。',
+    spellDescShortChainLightning: '连锁概率打击。',
+    spellDescShortWildfire: '附近所有棋子50/50摧毁。',
+    spellDescShortThunderVeil: '3回合内隐藏所有棋子。',
 
     // Spell categories
     catAttack: '攻击',
@@ -580,6 +648,40 @@ const STRINGS = {
     spellWildfire: 'Wildfire',
     spellThunderVeil: 'Thunder Veil',
 
+    // Spell descriptions (long)
+    spellDescStoneSkin: 'Make your stone uncapturable for 5 turns. Hidden.',
+    spellDescSanctuary: 'Protect a 3x3 area from captures for 4 turns.',
+    spellDescEarthenWall: 'Block 3 consecutive intersections permanently. Counts as territory border.',
+    spellDescShatter: 'Destroy one enemy stone with only 1 liberty. Gain Chi.',
+    spellDescSmolder: 'Attach a hidden effect that removes 1 liberty per turn for 3 turns.',
+    spellDescInferno: 'All enemy stones in atari within range 2 are captured instantly.',
+    spellDescMirage: 'Place a phantom stone. Looks real to opponent. Vanishes if touched.',
+    spellDescSnare: 'Hidden trap. Enemy who steps on it loses their next turn.',
+    spellDescNineLives: 'Bring back a group captured this turn. Displaces enemy stones.',
+    spellDescVoidRift: 'Permanently remove a point. Can destroy stones. May cascade.',
+    spellDescWarpGate: 'Two points become adjacent. Groups connect across the board.',
+    spellDescPhaseShift: 'Your stone ignores enemies for 3 turns. Hidden for 1 turn.',
+    spellDescChainLightning: '75%/50%/25% chance to destroy chain of enemy stones.',
+    spellDescWildfire: 'Every stone within 2 spaces has 50% destroy chance. Hits your own too!',
+    spellDescThunderVeil: 'Your stones become invisible to opponent for 3 turns. Fog of war!',
+
+    // Spell descriptions (short)
+    spellDescShortStoneSkin: 'Shield a stone. Secret.',
+    spellDescShortSanctuary: '3x3 no-capture zone, 4 turns.',
+    spellDescShortEarthenWall: 'Build a 3-point wall.',
+    spellDescShortShatter: 'Destroy enemy stone in danger.',
+    spellDescShortSmolder: 'Hidden countdown. Burns liberties.',
+    spellDescShortInferno: 'Capture all atari stones nearby.',
+    spellDescShortMirage: 'Place a fake stone. Secret.',
+    spellDescShortSnare: 'Hidden trap. Steals a turn.',
+    spellDescShortNineLives: 'Resurrect a captured group.',
+    spellDescShortVoidRift: 'Delete a board intersection.',
+    spellDescShortWarpGate: 'Link two distant points.',
+    spellDescShortPhaseShift: 'Stone becomes intangible.',
+    spellDescShortChainLightning: 'Cascading RNG strikes.',
+    spellDescShortWildfire: '50/50 destroy all stones nearby.',
+    spellDescShortThunderVeil: 'Hide all your stones for 3 turns.',
+
     // Spell categories
     catAttack: 'Attack',
     catDefense: 'Defense',
@@ -739,6 +841,53 @@ const SPELL_NAME_MAP = {
 
 export function tSpellName(spellId) {
   return t(SPELL_NAME_MAP[spellId] || spellId);
+}
+
+/**
+ * Get localized spell description (long) by spell ID
+ */
+const SPELL_DESC_MAP = {
+  stoneskin: 'spellDescStoneSkin',
+  sanctuary: 'spellDescSanctuary',
+  earthenwall: 'spellDescEarthenWall',
+  shatter: 'spellDescShatter',
+  smolder: 'spellDescSmolder',
+  inferno: 'spellDescInferno',
+  mirage: 'spellDescMirage',
+  snare: 'spellDescSnare',
+  ninelives: 'spellDescNineLives',
+  voidrift: 'spellDescVoidRift',
+  warpgate: 'spellDescWarpGate',
+  phaseshift: 'spellDescPhaseShift',
+  chainlightning: 'spellDescChainLightning',
+  wildfire: 'spellDescWildfire',
+  thunderveil: 'spellDescThunderVeil',
+};
+
+const SPELL_DESC_SHORT_MAP = {
+  stoneskin: 'spellDescShortStoneSkin',
+  sanctuary: 'spellDescShortSanctuary',
+  earthenwall: 'spellDescShortEarthenWall',
+  shatter: 'spellDescShortShatter',
+  smolder: 'spellDescShortSmolder',
+  inferno: 'spellDescShortInferno',
+  mirage: 'spellDescShortMirage',
+  snare: 'spellDescShortSnare',
+  ninelives: 'spellDescShortNineLives',
+  voidrift: 'spellDescShortVoidRift',
+  warpgate: 'spellDescShortWarpGate',
+  phaseshift: 'spellDescShortPhaseShift',
+  chainlightning: 'spellDescShortChainLightning',
+  wildfire: 'spellDescShortWildfire',
+  thunderveil: 'spellDescShortThunderVeil',
+};
+
+export function tSpellDesc(spellId) {
+  return t(SPELL_DESC_MAP[spellId] || spellId);
+}
+
+export function tSpellDescShort(spellId) {
+  return t(SPELL_DESC_SHORT_MAP[spellId] || spellId);
 }
 
 /**

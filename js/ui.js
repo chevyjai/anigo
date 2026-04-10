@@ -15,7 +15,8 @@ import { BoardRenderer } from './board.js';
 import * as Audio from './audio.js';
 import {
   t, setLang, getLang, getAvailableLangs,
-  tSpellName, tCategory, tChampName, tChampTitle,
+  tSpellName, tSpellDesc, tSpellDescShort, tCategory,
+  tChampName, tChampTitle,
   tArchetype, tPassiveName, tPassiveDesc, tChampPitch,
   tColor, renderHowToPlayHTML
 } from './i18n.js';
@@ -197,45 +198,73 @@ function renderChampionGrid() {
 function showChampionDetail(champ) {
   const detail = document.getElementById('champ-detail');
   detail.classList.remove('hidden');
+
+  // Map category to display color var
+  const catColorMap = {
+    offensive: 'var(--spell-offensive)',
+    defensive: 'var(--spell-defensive)',
+    terrain: 'var(--spell-terrain)',
+    info: 'var(--spell-info)',
+    trap: 'var(--spell-trap)',
+  };
+
   detail.innerHTML = `
     <div class="champ-detail-portrait-banner">
       <picture>
         <source srcset="assets/art/champions/${champ.id}.webp" type="image/webp">
         <img src="assets/art/champions/${champ.id}.png" alt="${champ.name}" class="champ-detail-portrait-img">
       </picture>
+      <div class="champ-detail-portrait-fade" style="background: linear-gradient(to bottom, transparent 40%, rgba(14,14,24,0.95) 100%)"></div>
     </div>
-    <div class="champ-detail-header" style="border-color: ${champ.color}">
+    <div class="champ-detail-header">
       <div class="champ-detail-name" style="color: ${champ.color}">${tChampName(champ.id)}</div>
       <div class="champ-detail-title">${tChampTitle(champ.id)}</div>
       <div class="champ-detail-pitch">"${tChampPitch(champ.id)}"</div>
     </div>
     <div class="champ-passive-display">
-      <span class="passive-label">${t('passiveLabel')}</span>
-      <span class="passive-name">${tPassiveName(champ.passive.name)}</span>
+      <div class="passive-header">
+        <span class="passive-label">${t('passiveLabel')}</span>
+        <span class="passive-name">${tPassiveName(champ.passive.name)}</span>
+      </div>
       <span class="passive-desc">${tPassiveDesc(champ.passive.name)}</span>
     </div>
+    <div class="champ-detail-spells-label">SPELLS</div>
     <div class="champ-spells-row">
-      ${champ.spells.map(s => `
+      ${champ.spells.map(s => {
+        const catColor = catColorMap[s.category] || 'var(--border)';
+        return `
         <div class="champ-spell-card spell-cat-${s.category}">
+          <div class="champ-spell-cat-bar" style="background: ${catColor}"></div>
+          <div class="champ-spell-cost-badge">${s.cost}</div>
           <div class="champ-spell-art-preview spell-art-${s.id}"></div>
-          <div class="champ-spell-cost">${s.cost}</div>
-          <div class="champ-spell-name">${tSpellName(s.id)}</div>
-          <div class="champ-spell-uses">${s.uses}x</div>
-          <div class="champ-spell-desc">${s.descriptionLong || s.description}</div>
-          ${s.hidden ? '<div class="champ-spell-hidden">' + t('catSecret') + '</div>' : ''}
+          <div class="champ-spell-body">
+            <div class="champ-spell-name">${tSpellName(s.id)}</div>
+            <div class="champ-spell-meta">
+              <span class="champ-spell-uses">${s.uses}x</span>
+              <span class="champ-spell-cat-label">${s.category}</span>
+              ${s.hidden ? '<span class="champ-spell-hidden">' + t('catSecret') + '</span>' : ''}
+            </div>
+            <div class="champ-spell-desc">${tSpellDesc(s.id)}</div>
+          </div>
         </div>
-      `).join('')}
+      `;}).join('')}
     </div>
+    <button id="btn-confirm-champ" class="btn btn-primary btn-lock-in" disabled
+      style="--lock-champ-color: ${champ.color}"></button>
   `;
+  // Re-bind the lock-in button inside detail panel
+  updateChampionSelectUI();
 }
 
 function updateChampionSelectUI() {
   document.querySelectorAll('.champ-card').forEach(el => {
     const isSelected = el.dataset.champId === selectedChampionId;
     el.classList.toggle('selected', isSelected);
-    // Dim unselected cards when one is selected
-    el.classList.toggle('dimmed', selectedChampionId && !isSelected);
   });
+
+  // Toggle body class for grid sizing when detail is open
+  const body = document.querySelector('.champ-select-body');
+  if (body) body.classList.toggle('detail-open', !!selectedChampionId);
 
   const header = document.getElementById('champ-select-header');
   if (gs.mode === 'local') {
@@ -250,7 +279,10 @@ function updateChampionSelectUI() {
   const backBtn = document.getElementById('btn-back-title');
   if (backBtn) backBtn.textContent = t('backToTitle');
 
+  // Lock-in button is now inside the detail panel
   const btn = document.getElementById('btn-confirm-champ');
+  if (!btn) return;
+
   btn.disabled = !selectedChampionId;
 
   if (!selectedChampionId) {
@@ -463,15 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
     hintShown = { turn1: false, turn3capture: false, chiSpell: false, atari: false, firstCapture: false, passPrompt: false };
     gameStats = { stonesPlaced: 0, captures: 0, spellsUsed: 0 };
 
-    if (mode === 'ai' && isFirstGame()) {
-      gs.initChampion('seolhwa', BLACK);
-      const aiChampId = aiSelectChampion('seolhwa');
-      gs.initChampion(aiChampId, WHITE);
-      gs.startGame();
-      showIntroSlideshow(() => startGame());
-    } else {
-      startChampionSelect();
-    }
+    startChampionSelect();
   }
 
   // Main button goes straight to champion select (AI mode)
@@ -500,11 +524,16 @@ document.addEventListener('DOMContentLoaded', () => {
 // ════════════════════════════════════════════
 
 let resizeHandler = null;
+let contextMenuHandler = null;
 
 function cleanupGame() {
   if (renderer) { renderer.destroy(); renderer = null; }
   const canvas = document.getElementById('board-canvas');
-  if (canvas) canvas.removeEventListener('click', onBoardClick);
+  if (canvas) {
+    canvas.removeEventListener('click', onBoardClick);
+    if (contextMenuHandler) canvas.removeEventListener('contextmenu', contextMenuHandler);
+  }
+  contextMenuHandler = null;
   document.getElementById('btn-pass').removeEventListener('click', onPass);
   if (resizeHandler) { window.removeEventListener('resize', resizeHandler); resizeHandler = null; }
   selectedSpellId = null;
@@ -520,7 +549,8 @@ function startGame() {
   renderer = new BoardRenderer(canvas, gs);
 
   canvas.addEventListener('click', onBoardClick);
-  canvas.addEventListener('contextmenu', (e) => { e.preventDefault(); if (selectedSpellId) clearSpellSelection(); });
+  contextMenuHandler = (e) => { e.preventDefault(); if (selectedSpellId) clearSpellSelection(); };
+  canvas.addEventListener('contextmenu', contextMenuHandler);
   document.getElementById('btn-pass').addEventListener('click', onPass);
 
   resizeHandler = () => { if (renderer) renderer.resize(); };
@@ -556,12 +586,19 @@ function onBoardClick(e) {
     if (renderer.validTargets && renderer.validTargets.has(k)) {
       Audio.spellCast();
       gameStats.spellsUsed++;
-      const success = castSpell(gs, selectedSpellId, { row: grid.row, col: grid.col }, gs.currentPlayer);
+      const spellId = selectedSpellId;
+      const success = castSpell(gs, spellId, { row: grid.row, col: grid.col }, gs.currentPlayer);
       if (success) {
-        renderer.animateSpell(grid.row, grid.col, selectedSpellId);
+        renderer.animateSpell(grid.row, grid.col, spellId);
         gs.lastActionWasPass = false;
         clearSpellSelection();
         endPlayerTurn();
+      } else if (spellId === 'warpgate' && gs._warpGateFirst) {
+        // Warp Gate step 1 done — keep spell selected, update targets for step 2
+        renderer.animateSpell(grid.row, grid.col, spellId);
+        const targets = getValidTargets(gs, spellId, gs.currentPlayer);
+        renderer.validTargets = new Set(targets.map(t => posKey(t.row, t.col)));
+        updateGameUI();
       } else {
         clearSpellSelection();
         updateGameUI();
@@ -641,8 +678,14 @@ function executeAITurn() {
     }
     case 'cast_spell': {
       Audio.spellCast();
-      const success = castSpell(gs, action.spell.id, action.spellTarget, WHITE);
-      if (success) { renderer.animateSpell(action.spellTarget.row, action.spellTarget.col, action.spell.id); gs.lastActionWasPass = false; }
+      if (action.spell.id === 'warpgate' && action.spellTarget.first) {
+        castSpell(gs, 'warpgate', action.spellTarget.first, WHITE);
+        const success = castSpell(gs, 'warpgate', action.spellTarget.second, WHITE);
+        if (success) { renderer.animateSpell(action.spellTarget.second.row, action.spellTarget.second.col, 'warpgate'); gs.lastActionWasPass = false; }
+      } else {
+        const success = castSpell(gs, action.spell.id, action.spellTarget, WHITE);
+        if (success) { renderer.animateSpell(action.spellTarget.row, action.spellTarget.col, action.spell.id); gs.lastActionWasPass = false; }
+      }
       gs.switchTurn();
       break;
     }
@@ -723,7 +766,7 @@ function updateGameUI() {
 
   const currentChi = gs.chi[gs.currentPlayer];
   const chiEl = document.getElementById('chi-display');
-  chiEl.innerHTML = `<span class="chi-icon">&#x2B22;</span> ${currentChi}`;
+  chiEl.innerHTML = `<span class="chi-icon"><span class="chi-gem"></span><span class="chi-gem-shine"></span></span> <span class="chi-count">${currentChi}</span>`;
   if (prevChiValue >= 0 && currentChi !== prevChiValue) {
     chiEl.classList.remove('chi-changed');
     void chiEl.offsetWidth;
@@ -822,7 +865,7 @@ function renderSpellHand() {
       ${spell.hidden ? '<div class="spell-card-hidden-tag">' + t('catSecret') + '</div>' : ''}
       <div class="spell-card-tooltip">
         <div class="tooltip-name">${tSpellName(spell.id)}</div>
-        <div class="tooltip-desc">${spell.descriptionLong || spell.description}</div>
+        <div class="tooltip-desc">${tSpellDesc(spell.id)}</div>
         <div class="tooltip-uses">${uses}/${spell.uses}</div>
       </div>
     `;

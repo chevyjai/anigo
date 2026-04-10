@@ -116,17 +116,40 @@ function aiConsiderSpell(gs, color) {
   const available = gs.getAvailableSpells(color);
   if (available.length === 0) return null;
 
+  // Don't waste spells in the first few turns — build up position first
+  if (gs.turnNumber < 4 && Math.random() > 0.15) return null;
+
+  // Check if we're in danger — prioritize defensive spells
+  const ownStones = allStonesOfColor(gs, color);
+  const opp = opposite(color);
+  let inDanger = false;
+  for (const s of ownStones) {
+    if (gs.countLiberties(s.row, s.col) <= 1) { inDanger = true; break; }
+  }
+
+  // Higher spell cast chance when in danger or when we have lots of chi
+  let castChance = AI_SPELL_CAST_CHANCE;
+  if (inDanger) castChance = 0.8;
+  else if (gs.chi[color] >= 8) castChance = 0.7;
+  else if (gs.turnNumber > 20) castChance = 0.6; // Late game: use them or lose them
+
   const hasExpensive = available.some(s => s.cost >= 5);
-  if (hasExpensive && gs.chi[color] < AI_MIN_CHI_FOR_BIG_SPELL) {
+  if (hasExpensive && gs.chi[color] < AI_MIN_CHI_FOR_BIG_SPELL && !inDanger) {
     const cheap = available.filter(s => s.cost <= 3);
     if (cheap.length === 0) return null;
   }
 
-  if (Math.random() > AI_SPELL_CAST_CHANCE) return null;
+  if (Math.random() > castChance) return null;
 
-  const opp = opposite(color);
+  // Sort spells by priority: defensive when in danger, offensive otherwise
+  const sorted = [...available].sort((a, b) => {
+    const aDefensive = ['stoneskin', 'sanctuary', 'phaseshift', 'ninelives'].includes(a.id);
+    const bDefensive = ['stoneskin', 'sanctuary', 'phaseshift', 'ninelives'].includes(b.id);
+    if (inDanger) return (bDefensive ? 1 : 0) - (aDefensive ? 1 : 0);
+    return (aDefensive ? 1 : 0) - (bDefensive ? 1 : 0);
+  });
 
-  for (const spell of available) {
+  for (const spell of sorted) {
     const cost = gs.getSpellCost(spell.id, color);
     if (gs.chi[color] < cost) continue;
     if (!canCastSpell(gs, spell.id, color)) continue;
@@ -223,8 +246,18 @@ function aiConsiderSpell(gs, color) {
         }
         break;
       }
-      case 'sanctuary': case 'earthenwall': case 'warpgate': {
+      case 'sanctuary': case 'earthenwall': {
         bestTarget = randomChoice(validTargets);
+        break;
+      }
+      case 'warpgate': {
+        if (validTargets.length >= 2) {
+          const t1 = randomChoice(validTargets);
+          const remaining = validTargets.filter(t => t.row !== t1.row || t.col !== t1.col);
+          if (remaining.length > 0) {
+            bestTarget = { first: t1, second: randomChoice(remaining) };
+          }
+        }
         break;
       }
       case 'thunderveil': {

@@ -698,12 +698,16 @@ function executeAITurn() {
           Audio.stoneCapture();
           renderer.animateCapture(gs.capturedThisTurn.map(p => ({ row: p.row, col: p.col, color: BLACK })));
         }
-        const spellCost = gs.getSpellCost(action.spell.id, WHITE);
-        if (gs.chi[WHITE] >= spellCost + DUAL_ACTION_SURCHARGE) {
-          gs.chi[WHITE] -= DUAL_ACTION_SURCHARGE;
-          Audio.spellCast();
-          castSpell(gs, action.spell.id, action.spellTarget, WHITE);
-          renderer.animateSpell(action.spellTarget.row, action.spellTarget.col, action.spell.id);
+        // Warp Gate requires two steps — skip dual action for it
+        if (action.spell.id === 'warpgate') { /* skip — too complex for dual action */ }
+        else {
+          const spellCost = gs.getSpellCost(action.spell.id, WHITE);
+          if (gs.chi[WHITE] >= spellCost + DUAL_ACTION_SURCHARGE) {
+            gs.chi[WHITE] -= DUAL_ACTION_SURCHARGE;
+            Audio.spellCast();
+            castSpell(gs, action.spell.id, action.spellTarget, WHITE);
+            renderer.animateSpell(action.spellTarget.row, action.spellTarget.col, action.spell.id);
+          }
         }
       }
       gs.switchTurn();

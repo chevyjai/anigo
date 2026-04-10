@@ -21,6 +21,8 @@ import {
   tColor, renderHowToPlayHTML
 } from './i18n.js';
 import { getPlayer, recordGame, getWinRate, loginWithKakao } from './auth.js';
+import { getStreak, checkAndRefreshQuests } from './daily-quests.js';
+import { getRank, getTotalStars } from './progression.js';
 
 // ── App State ──
 let gs = null;
@@ -518,6 +520,82 @@ function updateProfilePanel() {
     } else {
       favChampEl.textContent = '—';
     }
+  }
+}
+
+// ── Streak Display on Title Screen ──
+function updateStreakDisplay() {
+  const streakEl = document.getElementById('streak-display');
+  if (!streakEl) return;
+  try {
+    checkAndRefreshQuests();
+    const streakInfo = getStreak();
+    if (streakInfo.currentStreak > 0) {
+      streakEl.textContent = `\uD83D\uDD25 ${streakInfo.currentStreak}\uC77C`;
+      streakEl.classList.remove('hidden');
+      // Pulse animation for high streaks
+      if (streakInfo.currentStreak >= 7) {
+        streakEl.classList.add('streak-hot');
+      } else {
+        streakEl.classList.remove('streak-hot');
+      }
+    } else {
+      streakEl.textContent = '';
+      streakEl.classList.add('hidden');
+    }
+  } catch (e) {
+    // daily-quests module may not be available yet
+    streakEl.textContent = '';
+    streakEl.classList.add('hidden');
+  }
+}
+
+// ── Daily Challenge — date-seeded puzzle picker ──
+function getDailyPuzzleId() {
+  const now = new Date();
+  // Use KST (UTC+9) date for consistency across timezones
+  const kstOffset = 9 * 60 * 60 * 1000;
+  const kstDate = new Date(now.getTime() + kstOffset);
+  const dateStr = kstDate.toISOString().slice(0, 10); // YYYY-MM-DD
+
+  // Deterministic seed from date string (same algorithm as daily-quests.js)
+  let hash = 0;
+  for (let i = 0; i < dateStr.length; i++) {
+    hash = ((hash << 5) - hash) + dateStr.charCodeAt(i);
+    hash |= 0;
+  }
+  const seed = Math.abs(hash);
+
+  // Daily puzzle IDs: pd-1 through pd-10
+  const dailyPuzzleIds = ['pd-1','pd-2','pd-3','pd-4','pd-5','pd-6','pd-7','pd-8','pd-9','pd-10'];
+  const index = seed % dailyPuzzleIds.length;
+  return { puzzleId: dailyPuzzleIds[index], dateStr };
+}
+
+function isDailyCompleted() {
+  const { dateStr } = getDailyPuzzleId();
+  const key = 'anigo-daily-challenge-completed';
+  try {
+    const data = JSON.parse(localStorage.getItem(key) || '{}');
+    return data.date === dateStr;
+  } catch { return false; }
+}
+
+function markDailyCompleted(stars, moves) {
+  const { dateStr } = getDailyPuzzleId();
+  const key = 'anigo-daily-challenge-completed';
+  localStorage.setItem(key, JSON.stringify({ date: dateStr, stars, moves }));
+}
+
+function updateDailyBadge() {
+  const badge = document.getElementById('daily-badge');
+  if (!badge) return;
+  if (isDailyCompleted()) {
+    badge.textContent = '\u2713';
+    badge.classList.add('daily-done');
+  } else {
+    badge.textContent = 'NEW';
+    badge.classList.remove('daily-done');
   }
 }
 

@@ -139,9 +139,90 @@ export function getWinRate() {
 }
 
 /**
- * Placeholder: Kakao Login (Coming Soon)
+ * Privy Auth Integration
+ * Privy supports Kakao as a social login provider.
+ * Set PRIVY_APP_ID to enable. Until then, shows coming soon.
  */
-export function loginWithKakao() {
+const PRIVY_APP_ID = null; // Replace with your Privy app ID to enable
+
+let privyInstance = null;
+
+async function initPrivy() {
+  if (!PRIVY_APP_ID || privyInstance) return privyInstance;
+  try {
+    // Dynamically load Privy SDK
+    if (!window.Privy) {
+      const script = document.createElement('script');
+      script.src = 'https://auth.privy.io/privy.js';
+      script.async = true;
+      document.head.appendChild(script);
+      await new Promise((resolve, reject) => {
+        script.onload = resolve;
+        script.onerror = reject;
+      });
+    }
+    if (window.Privy) {
+      privyInstance = new window.Privy({ appId: PRIVY_APP_ID });
+      return privyInstance;
+    }
+  } catch (e) {
+    console.warn('Privy init failed:', e);
+  }
+  return null;
+}
+
+/**
+ * Login with Kakao via Privy (or direct Kakao SDK)
+ * Falls back to "coming soon" if Privy not configured
+ */
+export async function loginWithKakao() {
+  // Try Privy first
+  if (PRIVY_APP_ID) {
+    try {
+      const privy = await initPrivy();
+      if (privy) {
+        const user = await privy.login({ loginMethods: ['kakao'] });
+        if (user) {
+          const player = getPlayer();
+          player.type = 'kakao';
+          player.kakaoId = user.id || user.kakao?.id;
+          player.name = user.kakao?.profile?.nickname || player.name;
+          savePlayer(player);
+          return { success: true, player };
+        }
+      }
+    } catch (e) {
+      console.warn('Privy Kakao login failed:', e);
+    }
+  }
+
+  // Try direct Kakao SDK
+  if (window.Kakao && window.Kakao.isInitialized && window.Kakao.isInitialized()) {
+    try {
+      return new Promise((resolve) => {
+        window.Kakao.Auth.login({
+          success: (authObj) => {
+            window.Kakao.API.request({
+              url: '/v2/user/me',
+              success: (res) => {
+                const player = getPlayer();
+                player.type = 'kakao';
+                player.kakaoId = res.id;
+                player.name = res.kakao_account?.profile?.nickname || player.name;
+                savePlayer(player);
+                resolve({ success: true, player });
+              },
+              fail: () => resolve({ success: false, message: '카카오 프로필을 가져올 수 없습니다.' })
+            });
+          },
+          fail: () => resolve({ success: false, message: '카카오 로그인에 실패했습니다.' })
+        });
+      });
+    } catch (e) {
+      console.warn('Kakao SDK login failed:', e);
+    }
+  }
+
   return { success: false, message: '카카오 로그인은 곧 출시됩니다! (Coming Soon)' };
 }
 

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AniGO</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- TITLE SCREEN — clean art, all text is dynamic/translatable -->
+  <div id="title-screen" class="screen splash-entrance">
+    <div class="splash-hero-img"></div>
+    <div class="splash-hero-fade"></div>
+    <div class="splash-energy-pulse"></div>
+    <div id="splash-particles"></div>
+
+    <!-- Language selector — top right -->
+    <div class="splash-lang" id="title-lang-selector"></div>
+
+    <!-- Dynamic title + tagline (top-left) -->
+    <div class="splash-title-overlay">
+      <div class="splash-title-text">AniGO</div>
+      <div class="splash-tagline" id="splash-tagline">인간의 직관이 반격하는 바둑 게임</div>
+    </div>
+
+    <!-- Dynamic buttons (bottom-right) -->
+    <div class="splash-buttons">
+      <button id="btn-vs-ai" class="splash-btn splash-btn-primary">
+        <span id="splash-btn-launch">게임 시작</span>
+      </button>
+      <button id="btn-local" class="splash-btn">
+        <span id="splash-btn-local">로컬 2인 대전</span>
+      </button>
+      <button id="btn-how-to-play" class="splash-btn">
+        <span id="splash-btn-help">플레이 방법</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- CHAMPION SELECT SCREEN -->
+  <div id="champion-select" class="screen hidden">
+    <button id="btn-back-title" class="btn-back" aria-label="Back">← 뒤로</button>
+    <div class="champ-select-header" id="champ-select-header"></div>
+    <div class="champ-select-sub" id="champ-select-sub"></div>
+    <div id="champ-grid"></div>
+    <div id="champ-detail" class="champ-detail hidden"></div>
+    <button id="btn-confirm-champ" class="btn btn-primary btn-lock-in" disabled></button>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="game-screen" class="screen hidden">
+    <header class="game-header glass-panel">
+      <div class="header-logo">AniGO</div>
+      <div class="header-center">
+        <span id="turn-indicator" class="turn-pill turn-black"></span>
+        <span id="turn-number"></span>
+      </div>
+      <div class="header-right">
+        <span id="chi-display"><span class="chi-icon">&#x2B22;</span> 3</span>
+        <span id="phase-label"></span>
+        <button id="btn-help-ingame" class="btn-help" aria-label="?">?</button>
+        <div class="header-lang-selector lang-selector" id="header-lang-selector"></div>
+      </div>
+    </header>
+
+    <aside class="spell-panel glass-panel">
+      <div class="panel-section">
+        <div class="panel-label" id="label-champion-name"></div>
+        <div class="panel-passive" id="passive-display"></div>
+        <div class="panel-label" id="label-your-spells">SPELLS</div>
+        <div id="spell-hand"></div>
+      </div>
+      <div class="panel-section">
+        <div class="panel-label" id="label-stats">STATS</div>
+        <div class="panel-stat"><span id="label-captures">Captures</span><span class="panel-stat-value" id="player-captures">0</span></div>
+      </div>
+      <div class="panel-section opponent-info">
+        <div class="panel-label" id="label-opponent">OPPONENT</div>
+        <div class="panel-stat"><span id="label-opp-chi">Chi</span><span class="panel-stat-value" id="opp-chi">3</span></div>
+        <div class="panel-stat"><span id="label-opp-captures">Captures</span><span class="panel-stat-value" id="opp-captures">0</span></div>
+      </div>
+      <div style="flex:1;"></div>
+      <button id="btn-pass" class="btn btn-pass"><span id="pass-label">PASS</span><span class="btn-pass-hint" id="pass-hint">+2 Chi</span></button>
+    </aside>
+
+    <main class="board-area" style="position:relative;">
+      <div id="action-prompt" class="action-prompt"></div>
+      <canvas id="board-canvas"></canvas>
+    </main>
+
+    <footer class="game-log glass-panel">
+      <span class="game-log-label" id="log-label">LOG</span>
+      <span id="game-log-text"></span>
+    </footer>
+  </div>
+
+  <!-- SCORING SCREEN -->
+  <div id="scoring-screen" class="screen hidden">
+    <div id="winner-text"></div>
+    <div class="scoring-board">
+      <canvas id="scoring-canvas"></canvas>
+    </div>
+    <div class="score-breakdown">
+      <div class="score-column">
+        <div class="score-label" id="score-label-black">BLACK</div>
+        <div class="score-value" id="score-black">0</div>
+        <div class="score-detail" id="score-black-detail"></div>
+      </div>
+      <div class="score-column">
+        <div class="score-label" id="score-label-white">WHITE</div>
+        <div class="score-value" id="score-white">0</div>
+        <div class="score-detail" id="score-white-detail"></div>
+      </div>
+    </div>
+    <div id="post-game-learning" class="post-game-learning hidden"></div>
+    <button id="btn-play-again" class="btn btn-primary">Play Again</button>
+  </div>
+
+  <!-- HOW TO PLAY MODAL -->
+  <div id="how-to-play-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="How to Play">
+    <div class="modal-content glass-panel" id="how-to-play-content"></div>
+  </div>
+
+  <script type="module" src="js/ui.js"></script>
+</body>
+</html>

@@ -1154,6 +1154,13 @@ function updateGameUI() {
   }
   turnEl.className = `turn-pill ${gs.currentPlayer === BLACK ? 'turn-black' : 'turn-white'}`;
 
+  // Header breathing glow based on current player
+  const header = document.querySelector('.game-header');
+  if (header) {
+    header.classList.remove('turn-glow-black', 'turn-glow-white');
+    header.classList.add(gs.currentPlayer === BLACK ? 'turn-glow-black' : 'turn-glow-white');
+  }
+
   const currentChi = gs.chi[gs.currentPlayer];
   const chiEl = document.getElementById('chi-display');
   chiEl.innerHTML = `<span class="chi-icon"><span class="chi-gem"></span><span class="chi-gem-shine"></span></span> <span class="chi-count">${currentChi}</span>`;
@@ -1240,6 +1247,7 @@ function renderSpellHand() {
     if (!canCast) card.classList.add('spell-disabled');
     if (isSelected) card.classList.add('spell-selected');
     if (uses === 0) card.classList.add('spell-exhausted');
+    else if (gs.chi[color] < cost) card.classList.add('spell-no-chi');
 
     card.innerHTML = `
       <div class="tcg-card-inner">

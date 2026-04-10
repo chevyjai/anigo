@@ -13,6 +13,14 @@ import { canCastSpell, getValidTargets, castSpell } from './spells.js';
 
 function randomChoice(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
+// AI Difficulty: 'easy', 'normal', 'hard'
+// Easy: picks from top 5, random spell timing, misses atari 40% of time
+// Normal: picks from top 3, decent spell timing (current behavior)
+// Hard: always picks best move, deterministic spell usage, never misses atari
+let aiDifficulty = 'normal';
+export function setAIDifficulty(d) { aiDifficulty = d; }
+export function getAIDifficulty() { return aiDifficulty; }
+
 function allStonesOfColor(gs, color) {
   const stones = [];
   for (let r = 0; r < BOARD_SIZE; r++) for (let c = 0; c < BOARD_SIZE; c++)
@@ -81,7 +89,8 @@ function selectMove(gs, color) {
       }
     }
   }
-  if (atariSaves.length > 0 && Math.random() < AI_SAVE_PRIORITY) {
+  const saveChance = aiDifficulty === 'easy' ? 0.6 : aiDifficulty === 'hard' ? 1.0 : AI_SAVE_PRIORITY;
+  if (atariSaves.length > 0 && Math.random() < saveChance) {
     atariSaves.sort((a, b) => b.groupSize - a.groupSize);
     return atariSaves[0];
   }
@@ -101,14 +110,16 @@ function selectMove(gs, color) {
         if (legalMoves.some(m => m.row === lib.row && m.col === lib.col)) atariCaptures.push({ ...lib, groupSize: group.size });
     }
   }
-  if (atariCaptures.length > 0 && Math.random() < AI_CAPTURE_PRIORITY) {
+  const captChance = aiDifficulty === 'easy' ? 0.5 : aiDifficulty === 'hard' ? 1.0 : AI_CAPTURE_PRIORITY;
+  if (atariCaptures.length > 0 && Math.random() < captChance) {
     atariCaptures.sort((a, b) => b.groupSize - a.groupSize);
     return atariCaptures[0];
   }
 
   const scoredMoves = legalMoves.map(m => ({ ...m, score: scoreMovePosition(gs, m.row, m.col, color) }));
   scoredMoves.sort((a, b) => b.score - a.score);
-  const topN = Math.min(3, scoredMoves.length);
+  // Difficulty affects move selection pool: easy=top5, normal=top3, hard=best
+  const topN = aiDifficulty === 'easy' ? Math.min(5, scoredMoves.length) : aiDifficulty === 'hard' ? 1 : Math.min(3, scoredMoves.length);
   return scoredMoves[Math.floor(Math.random() * topN)];
 }
 

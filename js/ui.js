@@ -10,7 +10,7 @@ import {
 } from './data.js';
 import { GameState } from './game.js';
 import { canCastSpell, getValidTargets, castSpell } from './spells.js';
-import { aiTakeTurn, aiSelectChampion } from './ai.js';
+import { aiTakeTurn, aiSelectChampion, setAIDifficulty } from './ai.js';
 import { BoardRenderer } from './board.js';
 import * as Audio from './audio.js';
 import {
@@ -132,6 +132,21 @@ function startChampionSelect() {
   showScreen('champion-select');
   renderChampionGrid();
   updateChampionSelectUI();
+  initDifficultySelector();
+}
+
+function initDifficultySelector() {
+  const selector = document.getElementById('difficulty-selector');
+  if (!selector) return;
+  // Only show for AI mode
+  selector.style.display = (gs && gs.mode === 'ai') ? 'flex' : 'none';
+  selector.querySelectorAll('.diff-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      selector.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      setAIDifficulty(btn.dataset.diff);
+    });
+  });
 }
 
 // Difficulty mapping per champion

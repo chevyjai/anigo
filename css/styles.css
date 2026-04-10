@@ -898,6 +898,50 @@ body {
   margin-bottom: 8px;
 }
 
+.difficulty-selector {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.diff-btn {
+  padding: 6px 16px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  color: var(--foreground-muted);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-out);
+  min-height: 36px;
+}
+
+.diff-btn:hover {
+  background: var(--surface-hover);
+  color: var(--foreground);
+}
+
+.diff-btn.active {
+  background: rgba(212, 160, 23, 0.15);
+  border-color: var(--chi-gold);
+  color: var(--chi-gold);
+}
+
+.diff-btn[data-diff="easy"].active {
+  background: rgba(5, 150, 105, 0.15);
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.diff-btn[data-diff="hard"].active {
+  background: rgba(220, 38, 38, 0.15);
+  border-color: var(--destructive);
+  color: var(--destructive);
+}
+
 #champ-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);

@@ -128,7 +128,8 @@ function aiConsiderSpell(gs, color) {
   if (available.length === 0) return null;
 
   // Don't waste spells in the first few turns — build up position first
-  if (gs.turnNumber < 4 && Math.random() > 0.15) return null;
+  const earlyGameSkip = aiDifficulty === 'hard' ? 0.5 : aiDifficulty === 'easy' ? 0.05 : 0.15;
+  if (gs.turnNumber < 4 && Math.random() > earlyGameSkip) return null;
 
   // Check if we're in danger — prioritize defensive spells
   const ownStones = allStonesOfColor(gs, color);
@@ -138,11 +139,11 @@ function aiConsiderSpell(gs, color) {
     if (gs.countLiberties(s.row, s.col) <= 1) { inDanger = true; break; }
   }
 
-  // Higher spell cast chance when in danger or when we have lots of chi
-  let castChance = AI_SPELL_CAST_CHANCE;
-  if (inDanger) castChance = 0.8;
-  else if (gs.chi[color] >= 8) castChance = 0.7;
-  else if (gs.turnNumber > 20) castChance = 0.6; // Late game: use them or lose them
+  // Difficulty affects spell cast probability
+  let castChance = aiDifficulty === 'hard' ? 0.85 : aiDifficulty === 'easy' ? 0.25 : AI_SPELL_CAST_CHANCE;
+  if (inDanger) castChance = aiDifficulty === 'hard' ? 1.0 : 0.8;
+  else if (gs.chi[color] >= 8) castChance = aiDifficulty === 'hard' ? 0.95 : 0.7;
+  else if (gs.turnNumber > 20) castChance = aiDifficulty === 'hard' ? 0.9 : 0.6;
 
   const hasExpensive = available.some(s => s.cost >= 5);
   if (hasExpensive && gs.chi[color] < AI_MIN_CHI_FOR_BIG_SPELL && !inDanger) {

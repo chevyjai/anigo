@@ -252,10 +252,164 @@ function setupPuzzleControls() {
 }
 
 function cleanupPuzzle() {
+  stopTimer();
   if (puzzleRenderer) { puzzleRenderer.destroy(); puzzleRenderer = null; }
   const canvas = document.getElementById('puzzle-board-canvas');
   if (canvas) canvas.removeEventListener('click', onPuzzleBoardClick);
   puzzleEngine = null;
+}
+
+// ── Timed Mode Functions ──
+
+function setupTimerToggle(isDailyPuzzle) {
+  const timerContainer = document.getElementById('puzzle-timer-container');
+  if (!timerContainer) {
+    // Create timer UI if it doesn't exist
+    const puzzleHeader = document.querySelector('#puzzle-play .puzzle-header') ||
+                         document.getElementById('puzzle-goal-text')?.parentElement;
+    if (puzzleHeader) {
+      const container = document.createElement('div');
+      container.id = 'puzzle-timer-container';
+      container.className = 'puzzle-timer-container hidden';
+      container.innerHTML = `
+        <div class="puzzle-timer-toggle">
+          <label class="timer-toggle-label">
+            <input type="checkbox" id="puzzle-timer-toggle" />
+            <span class="timer-toggle-text"></span>
+          </label>
+        </div>
+        <div class="puzzle-timer-display hidden" id="puzzle-timer-display">
+          <span class="timer-icon">&#9201;</span>
+          <span class="timer-value" id="puzzle-timer-value">60</span>
+          <span class="timer-unit">s</span>
+        </div>
+      `;
+      puzzleHeader.appendChild(container);
+    }
+  }
+
+  const container = document.getElementById('puzzle-timer-container');
+  const toggle = document.getElementById('puzzle-timer-toggle');
+  const lang = getLang();
+
+  if (!isDailyPuzzle) {
+    if (container) container.classList.add('hidden');
+    timedModeEnabled = false;
+    return;
+  }
+
+  if (container) container.classList.remove('hidden');
+  const toggleText = container?.querySelector('.timer-toggle-text');
+  if (toggleText) {
+    toggleText.textContent = lang === 'ko' ? '타이머 모드' : 'Timed Mode';
+  }
+
+  if (toggle) {
+    toggle.checked = timedModeEnabled;
+    // Replace to remove old listeners
+    const newToggle = toggle.cloneNode(true);
+    toggle.parentNode.replaceChild(newToggle, toggle);
+    newToggle.addEventListener('change', (e) => {
+      timedModeEnabled = e.target.checked;
+      if (timedModeEnabled) {
+        startTimer();
+      } else {
+        stopTimer();
+      }
+    });
+  }
+}
+
+function startTimer() {
+  stopTimer();
+  timerSecondsLeft = DAILY_TIMER_SECONDS;
+
+  const display = document.getElementById('puzzle-timer-display');
+  const valueEl = document.getElementById('puzzle-timer-value');
+  if (display) display.classList.remove('hidden');
+  if (valueEl) valueEl.textContent = timerSecondsLeft;
+
+  timerInterval = setInterval(() => {
+    timerSecondsLeft--;
+    if (valueEl) {
+      valueEl.textContent = timerSecondsLeft;
+      // Urgency styling
+      if (timerSecondsLeft <= 10) {
+        valueEl.classList.add('timer-critical');
+      } else if (timerSecondsLeft <= 20) {
+        valueEl.classList.add('timer-warning');
+      }
+    }
+
+    if (timerSecondsLeft <= 0) {
+      stopTimer();
+      onTimerExpired();
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  const display = document.getElementById('puzzle-timer-display');
+  if (display) display.classList.add('hidden');
+  const valueEl = document.getElementById('puzzle-timer-value');
+  if (valueEl) {
+    valueEl.classList.remove('timer-critical', 'timer-warning');
+  }
+}
+
+function onTimerExpired() {
+  if (!puzzleEngine || puzzleEngine.completed) return;
+
+  const lang = getLang();
+  try { Audio.gameEnd(); } catch {}
+
+  // Force 1-star max completion if puzzle was in progress, otherwise fail
+  if (puzzleEngine.moveCount > 0) {
+    completePuzzle(puzzleEngine.puzzle.id, 1);
+  }
+
+  const overlay = document.getElementById('puzzle-complete-overlay');
+  if (!overlay) return;
+  overlay.classList.remove('hidden');
+
+  overlay.innerHTML = `
+    <div class="puzzle-complete-content puzzle-failed">
+      <div class="puzzle-complete-title failed-title">${lang === 'ko' ? '시간 초과!' : 'Time\'s Up!'}</div>
+      <div class="puzzle-failed-icon">&#9201;</div>
+      <div class="puzzle-complete-stars">
+        <span class="complete-star star-1 earned">&#9733;</span>
+        <span class="complete-star star-2">&#9734;</span>
+        <span class="complete-star star-3">&#9734;</span>
+      </div>
+      <div class="puzzle-timer-expired-msg">
+        ${lang === 'ko' ? '60초 안에 완료하지 못했습니다. 최대 별 1개!' : 'Failed to complete in 60 seconds. Max 1 star!'}
+      </div>
+      <div class="puzzle-complete-actions">
+        <button class="btn btn-primary puzzle-btn-retry" id="puzzle-btn-retry-timer">
+          ${lang === 'ko' ? '다시 도전' : 'Retry'}
+        </button>
+        <button class="btn btn-secondary puzzle-btn-levels" id="puzzle-btn-levels-timer">
+          ${lang === 'ko' ? '레벨 선택' : 'Level Select'}
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('puzzle-btn-retry-timer')?.addEventListener('click', () => {
+    overlay.classList.add('hidden');
+    onPuzzleReset();
+    if (timedModeEnabled) startTimer();
+  });
+
+  document.getElementById('puzzle-btn-levels-timer')?.addEventListener('click', () => {
+    overlay.classList.add('hidden');
+    cleanupPuzzle();
+    showPuzzleSelect();
+  });
 }
 
 function onPuzzleBoardClick(e) {
@@ -382,6 +536,11 @@ function onPuzzleReset() {
   }
   updatePuzzleUI();
   updatePuzzleSpells();
+
+  // Restart timer if timed mode is active
+  if (timedModeEnabled && puzzleEngine.puzzle.world === 'daily') {
+    startTimer();
+  }
 
   // Hide any overlay
   const overlay = document.getElementById('puzzle-complete-overlay');
@@ -526,6 +685,9 @@ function showPuzzleComplete(stars) {
   const p = puzzleEngine.puzzle;
   const lang = getLang();
 
+  // Stop timer on completion
+  stopTimer();
+
   // Save progress
   completePuzzle(p.id, stars);
   try { Audio.gameEnd(); } catch {}
@@ -536,6 +698,14 @@ function showPuzzleComplete(stars) {
 
   const movesUsed = puzzleEngine.moveCount;
   const optimal = p.optimalMoves || 1;
+
+  // Build KakaoTalk share button for 3-star completions
+  const shareButtonHtml = stars === 3 ? `
+    <button class="btn btn-kakao puzzle-btn-share-kakao" id="puzzle-btn-share-kakao">
+      <span class="kakao-icon">&#128172;</span>
+      ${lang === 'ko' ? '카카오톡으로 자랑하기' : 'Share on KakaoTalk'}
+    </button>
+  ` : '';
 
   overlay.innerHTML = `
     <div class="puzzle-complete-content">
@@ -553,6 +723,7 @@ function showPuzzleComplete(stars) {
           <span class="complete-stat-value">${optimal}</span>
         </div>
       </div>
+      ${shareButtonHtml}
       <div class="puzzle-complete-actions">
         <button class="btn btn-primary puzzle-btn-next" id="puzzle-btn-next">
           ${lang === 'ko' ? '다음 레벨' : 'Next Level'} →
@@ -598,6 +769,63 @@ function showPuzzleComplete(stars) {
     cleanupPuzzle();
     showPuzzleSelect();
   });
+
+  // KakaoTalk share button (3-star only)
+  const shareKakaoBtn = document.getElementById('puzzle-btn-share-kakao');
+  if (shareKakaoBtn) {
+    shareKakaoBtn.addEventListener('click', () => {
+      sharePuzzleResultKakao(p, stars, movesUsed);
+    });
+  }
+}
+
+function sharePuzzleResultKakao(puzzle, stars, moves) {
+  const lang = getLang();
+  const puzzleName = lang === 'ko' && puzzle.nameKo ? puzzle.nameKo : puzzle.name;
+  const starStr = '\u2605'.repeat(stars) + '\u2606'.repeat(3 - stars);
+  const shareText = lang === 'ko'
+    ? `AniGO 퍼즐 "${puzzleName}" ${starStr} 클리어! (${moves}수)\n나도 도전해보세요!`
+    : `AniGO Puzzle "${puzzleName}" ${starStr} cleared in ${moves} moves!\nTry it yourself!`;
+  const shareUrl = window.location.href;
+
+  // Try Web Share API first (works on mobile)
+  if (navigator.share) {
+    navigator.share({
+      title: 'AniGO',
+      text: shareText,
+      url: shareUrl
+    }).catch(() => {});
+    return;
+  }
+
+  // Fallback: KakaoTalk SDK sharing
+  if (typeof Kakao !== 'undefined' && Kakao.isInitialized && Kakao.isInitialized()) {
+    try {
+      Kakao.Share.sendDefault({
+        objectType: 'feed',
+        content: {
+          title: 'AniGO - ' + puzzleName,
+          description: shareText,
+          imageUrl: window.location.origin + '/assets/og-image.png',
+          link: { mobileWebUrl: shareUrl, webUrl: shareUrl }
+        },
+        buttons: [{
+          title: lang === 'ko' ? '도전하기' : 'Try it',
+          link: { mobileWebUrl: shareUrl, webUrl: shareUrl }
+        }]
+      });
+      return;
+    } catch (e) {
+      console.warn('Kakao Share failed:', e);
+    }
+  }
+
+  // Final fallback: copy to clipboard
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(shareText + '\n' + shareUrl).then(() => {
+      showPuzzleToast(lang === 'ko' ? '클립보드에 복사되었습니다!' : 'Copied to clipboard!');
+    }).catch(() => {});
+  }
 }
 
 function showPuzzleFailed() {

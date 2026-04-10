@@ -629,13 +629,18 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnPuzzle) {
     btnPuzzle.addEventListener('click', async () => {
       showScreen('puzzle-select');
+      const loadingEl = document.getElementById('puzzle-loading');
       if (!puzzleModuleLoaded) {
+        if (loadingEl) loadingEl.classList.remove('hidden');
         try {
           await import('./puzzle-ui.js');
           puzzleModuleLoaded = true;
         } catch (e) {
           console.warn('Failed to load puzzle module:', e);
         }
+        if (loadingEl) loadingEl.classList.add('hidden');
+      } else {
+        if (loadingEl) loadingEl.classList.add('hidden');
       }
       if (window.initPuzzleSelect) window.initPuzzleSelect();
     });

@@ -1420,9 +1420,98 @@ body {
 }
 
 .spell-card.spell-exhausted {
-  opacity: 0.25;
-  filter: grayscale(0.8);
+  opacity: 0.3;
+  filter: grayscale(0.85) brightness(0.7);
   pointer-events: none;
+  position: relative;
+}
+
+/* Diagonal strikethrough on exhausted cards */
+.spell-card.spell-exhausted::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    linear-gradient(
+      135deg,
+      transparent 42%,
+      rgba(220, 38, 38, 0.35) 42%,
+      rgba(220, 38, 38, 0.35) 44%,
+      transparent 44%,
+      transparent 56%,
+      rgba(220, 38, 38, 0.35) 56%,
+      rgba(220, 38, 38, 0.35) 58%,
+      transparent 58%
+    );
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* "USED" stamp on exhausted cards */
+.spell-card.spell-exhausted::before {
+  content: 'USED';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-20deg);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: rgba(220, 38, 38, 0.6);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(220, 38, 38, 0.4);
+  border-radius: 4px;
+  padding: 2px 8px;
+  z-index: 11;
+  pointer-events: none;
+}
+
+/* ── Not Enough Chi — card is affordable but too expensive right now ── */
+.spell-card.spell-no-chi {
+  opacity: 0.55;
+  filter: saturate(0.4);
+  cursor: not-allowed;
+  position: relative;
+}
+
+.spell-card.spell-no-chi .tcg-chi-badge {
+  animation: chiPulseWarn 1.5s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(220, 38, 38, 0.4);
+  border: 1px solid rgba(220, 38, 38, 0.5);
+}
+
+@keyframes chiPulseWarn {
+  0%, 100% {
+    box-shadow: 0 0 4px rgba(220, 38, 38, 0.3);
+    border-color: rgba(220, 38, 38, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(220, 38, 38, 0.5);
+    border-color: rgba(220, 38, 38, 0.7);
+  }
+}
+
+.spell-card.spell-no-chi .tcg-chi-badge span {
+  color: var(--destructive);
+}
+
+/* Dim overlay on no-chi cards */
+.spell-card.spell-no-chi::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(14, 14, 20, 0.3);
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 5;
 }
 
 /* Passive display in sidebar */
@@ -2663,6 +2752,44 @@ body {
   z-index: 100;
   border-radius: 0;
   border-bottom: 1px solid var(--glass-border);
+  position: relative;
+  transition: box-shadow 1.5s ease-in-out;
+}
+
+/* Ambient breathing glow — teal for black's turn */
+.game-header.turn-glow-black {
+  box-shadow: 0 2px 20px rgba(45, 212, 168, 0.08), 0 1px 8px rgba(45, 212, 168, 0.05);
+  border-bottom-color: rgba(45, 212, 168, 0.2);
+  animation: headerBreathBlack 3s ease-in-out infinite;
+}
+
+@keyframes headerBreathBlack {
+  0%, 100% {
+    box-shadow: 0 2px 16px rgba(45, 212, 168, 0.06), 0 1px 6px rgba(45, 212, 168, 0.04);
+    border-bottom-color: rgba(45, 212, 168, 0.15);
+  }
+  50% {
+    box-shadow: 0 2px 28px rgba(45, 212, 168, 0.12), 0 1px 12px rgba(45, 212, 168, 0.08);
+    border-bottom-color: rgba(45, 212, 168, 0.3);
+  }
+}
+
+/* Ambient breathing glow — warm for white's turn */
+.game-header.turn-glow-white {
+  box-shadow: 0 2px 20px rgba(240, 234, 214, 0.06), 0 1px 8px rgba(240, 234, 214, 0.04);
+  border-bottom-color: rgba(240, 234, 214, 0.2);
+  animation: headerBreathWhite 3s ease-in-out infinite;
+}
+
+@keyframes headerBreathWhite {
+  0%, 100% {
+    box-shadow: 0 2px 16px rgba(240, 234, 214, 0.04), 0 1px 6px rgba(240, 234, 214, 0.03);
+    border-bottom-color: rgba(240, 234, 214, 0.12);
+  }
+  50% {
+    box-shadow: 0 2px 28px rgba(240, 234, 214, 0.1), 0 1px 12px rgba(240, 234, 214, 0.06);
+    border-bottom-color: rgba(240, 234, 214, 0.25);
+  }
 }
 
 .header-logo {
@@ -2876,9 +3003,10 @@ body {
 
 .spell-card.spell-disabled {
   opacity: 0.4;
-  filter: grayscale(0.5);
+  filter: grayscale(0.5) brightness(0.85);
   cursor: not-allowed;
   pointer-events: none;
+  transition: opacity 0.3s ease, filter 0.3s ease;
 }
 
 /* Tooltip for in-hand card description on hover */
@@ -5533,6 +5661,34 @@ body {
   border-radius: 4px;
 }
 
+.puzzle-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 60px 0;
+}
+
+.puzzle-loading.hidden { display: none; }
+
+.puzzle-loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--chi-gold);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.puzzle-loading-text {
+  font-size: 13px;
+  color: var(--foreground-muted);
+}
+
 .puzzle-world-map {
   display: flex;
   flex-direction: column;
@@ -5556,8 +5712,32 @@ body {
 }
 
 .puzzle-world.locked {
-  opacity: 0.5;
-  filter: grayscale(0.6);
+  opacity: 0.7;
+  filter: grayscale(0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Frosted glass overlay for locked worlds */
+.puzzle-world.locked::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(14, 14, 20, 0.45);
+  backdrop-filter: blur(4px) saturate(0.6);
+  -webkit-backdrop-filter: blur(4px) saturate(0.6);
+  border-radius: inherit;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Lock content floats above the frost */
+.puzzle-world.locked .puzzle-world-lock {
+  position: relative;
+  z-index: 3;
 }
 
 .puzzle-world-header {
@@ -5618,19 +5798,43 @@ body {
   padding: 8px 0;
 }
 
-/* ── Connector between levels ── */
+/* ── Connector path between levels ── */
 .puzzle-connector {
-  width: 20px;
+  width: 24px;
   height: 3px;
-  background: var(--foreground-dim);
+  background: linear-gradient(90deg, var(--foreground-dim) 0%, rgba(255,255,255,0.15) 50%, var(--foreground-dim) 100%);
   border-radius: 2px;
-  opacity: 0.3;
+  opacity: 0.35;
   flex-shrink: 0;
+  position: relative;
+}
+
+/* Dashed path effect for locked connectors */
+.puzzle-connector::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0px,
+    transparent 4px,
+    rgba(0,0,0,0.5) 4px,
+    rgba(0,0,0,0.5) 8px
+  );
 }
 
 .puzzle-connector.active {
-  background: var(--chi-gold);
-  opacity: 0.6;
+  background: linear-gradient(90deg, var(--chi-gold), rgba(212, 160, 23, 0.6), var(--chi-gold));
+  opacity: 0.7;
+  box-shadow: 0 0 6px rgba(212, 160, 23, 0.3);
+}
+
+.puzzle-connector.active::after {
+  display: none;
 }
 
 /* ── Level Node ── */
@@ -5737,6 +5941,47 @@ body {
 
 .puzzle-level-node.locked .level-node-name {
   opacity: 0.3;
+}
+
+/* ── Boss Levels (every 10th) — larger, special border ── */
+.puzzle-level-node.boss .level-node-circle {
+  width: 60px;
+  height: 60px;
+  font-size: 20px;
+  border-width: 3px;
+  border-image: linear-gradient(135deg, var(--chi-gold), rgba(220, 38, 38, 0.8), var(--chi-gold)) 1;
+  border-style: solid;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, rgba(212, 160, 23, 0.15) 0%, var(--bg-base) 70%);
+  position: relative;
+}
+
+/* Boss skull/crown glyph */
+.puzzle-level-node.boss .level-node-circle::before {
+  content: '\u2694';
+  position: absolute;
+  top: -10px;
+  right: -6px;
+  font-size: 14px;
+  filter: drop-shadow(0 0 4px rgba(212, 160, 23, 0.6));
+  z-index: 2;
+}
+
+.puzzle-level-node.boss.current .level-node-circle {
+  box-shadow:
+    0 0 20px rgba(212, 160, 23, 0.4),
+    0 0 40px rgba(220, 38, 38, 0.2),
+    inset 0 0 12px rgba(212, 160, 23, 0.1);
+  animation: bossPulse 2s ease-in-out infinite;
+}
+
+@keyframes bossPulse {
+  0%, 100% {
+    box-shadow: 0 0 16px rgba(212, 160, 23, 0.3), 0 0 32px rgba(220, 38, 38, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 28px rgba(212, 160, 23, 0.5), 0 0 56px rgba(220, 38, 38, 0.25);
+  }
 }
 
 /* ════════════════════════════════════════════
@@ -6166,31 +6411,60 @@ body {
 }
 
 .complete-star {
-  font-size: 48px;
+  font-size: 52px;
   color: var(--foreground-dim);
-  opacity: 0.2;
-  transition: all 0.5s var(--ease-out);
+  opacity: 0.15;
+  transition: all 0.6s var(--ease-out);
   display: inline-block;
+  filter: drop-shadow(0 0 0 transparent);
 }
 
 .complete-star.earned {
   color: var(--chi-gold);
-  opacity: 0.3;
-  transform: scale(0.5);
+  opacity: 0.2;
+  transform: scale(0.3);
 }
+
+/* Staggered star entrances */
+.complete-star.earned.animate:nth-child(1) { animation-delay: 0s; }
+.complete-star.earned.animate:nth-child(2) { animation-delay: 0.35s; }
+.complete-star.earned.animate:nth-child(3) { animation-delay: 0.7s; }
 
 .complete-star.earned.animate {
   opacity: 1;
   transform: scale(1);
-  text-shadow: 0 0 24px rgba(212, 160, 23, 0.6), 0 0 48px rgba(212, 160, 23, 0.3);
-  animation: starBounce 0.6s var(--ease-out);
+  text-shadow:
+    0 0 12px rgba(212, 160, 23, 0.8),
+    0 0 32px rgba(212, 160, 23, 0.5),
+    0 0 64px rgba(212, 160, 23, 0.3);
+  animation: starImpact 0.8s var(--ease-out) both;
+  filter: drop-shadow(0 0 16px rgba(212, 160, 23, 0.6));
 }
 
-@keyframes starBounce {
-  0% { transform: scale(0.3) rotate(-30deg); opacity: 0; }
-  50% { transform: scale(1.3) rotate(5deg); opacity: 1; }
-  70% { transform: scale(0.9) rotate(-2deg); }
-  100% { transform: scale(1) rotate(0deg); }
+@keyframes starImpact {
+  0% {
+    transform: scale(0) rotate(-45deg);
+    opacity: 0;
+    filter: drop-shadow(0 0 0 transparent) brightness(1);
+  }
+  30% {
+    transform: scale(1.6) rotate(8deg);
+    opacity: 1;
+    filter: drop-shadow(0 0 30px rgba(212, 160, 23, 0.9)) brightness(1.5);
+  }
+  50% {
+    transform: scale(0.85) rotate(-4deg);
+    filter: drop-shadow(0 0 20px rgba(212, 160, 23, 0.7)) brightness(1.2);
+  }
+  70% {
+    transform: scale(1.1) rotate(2deg);
+    filter: drop-shadow(0 0 16px rgba(212, 160, 23, 0.6)) brightness(1.1);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+    filter: drop-shadow(0 0 16px rgba(212, 160, 23, 0.6)) brightness(1);
+  }
 }
 
 /* ── Stats ── */
@@ -6199,6 +6473,12 @@ body {
   justify-content: center;
   gap: 32px;
   margin-bottom: 24px;
+  animation: statsFadeIn 0.5s var(--ease-out) 0.5s both;
+}
+
+@keyframes statsFadeIn {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 .complete-stat {
@@ -6227,12 +6507,23 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  animation: actionsSlideUp 0.6s var(--ease-out) 0.8s both;
+}
+
+@keyframes actionsSlideUp {
+  0% { transform: translateY(30px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
 }
 
 .puzzle-complete-actions .btn {
   width: 100%;
   padding: 14px 24px;
   font-size: 15px;
+  transition: transform 0.15s var(--ease-out), box-shadow 0.15s var(--ease-out);
+}
+
+.puzzle-complete-actions .btn:active {
+  transform: scale(0.96);
 }
 
 .puzzle-btn-next {

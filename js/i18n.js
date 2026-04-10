@@ -11,8 +11,8 @@ const STRINGS = {
   ko: {
     // Title screen
     titleLogo: 'AniGO',
-    titleSubtitle: '바둑 + 마법 주문',
-    splashTagline: '인간의 직관이 반격하는 바둑 게임',
+    titleSubtitle: '바둑 × 마법 주문',
+    splashTagline: '직관이 알고리즘을 이기는 순간',
     puzzleMode: '퍼즐 모드',
     puzzleSub: '100+ 마법 바둑 퍼즐',
     playVsAI: 'AI 대전',
@@ -66,17 +66,17 @@ const STRINGS = {
 
     // Champion titles
     titleSeolhwa: '영토의 현자',
-    titleRyujin: '불꽃 전사',
-    titleKumiho: '그림자 사기꾼',
-    titleMusubi: '공허 행자',
-    titleRaijin: '폭풍 소환사',
+    titleRyujin: '화염의 전장',
+    titleKumiho: '환영의 지배자',
+    titleMusubi: '공허의 방랑자',
+    titleRaijin: '뇌전의 소환사',
 
     // Champion pitches
-    pitchSeolhwa: '난공불락의 요새를 만드세요.',
-    pitchRyujin: '모든 것을 불태우세요.',
-    pitchKumiho: '현실을 의심하게 만드세요.',
-    pitchMusubi: '판 자체를 바꾸세요.',
-    pitchRaijin: '번개를 타세요.',
+    pitchSeolhwa: '무너지지 않는 성을 쌓아라.',
+    pitchRyujin: '전장을 불바다로 만들어라.',
+    pitchKumiho: '적이 현실을 의심하게 만들어라.',
+    pitchMusubi: '바둑판 그 자체를 지배하라.',
+    pitchRaijin: '번개를 타고 전장을 휩쓸어라.',
 
     // Passive names
     passivePermafrost: '영구동토',
@@ -86,11 +86,11 @@ const STRINGS = {
     passiveEyeOfStorm: '폭풍의 눈',
 
     // Passive descriptions
-    passivePermafrostDesc: '화점 위의 돌이 활로 +1.',
-    passiveDragonsHungerDesc: '따냄 시 기 +2 추가 획득.',
-    passiveFoxsCunningDesc: '패스 시 무료 유령 돌 배치 (1회).',
-    passiveSpatialAnomalyDesc: '게임 시작 시 무작위 공허 1개.',
-    passiveEyeOfStormDesc: '최대 기에서 다음 주문 비용 -2.',
+    passivePermafrostDesc: '화점 위의 돌은 활로 +1 — 얼음이 지켜준다.',
+    passiveDragonsHungerDesc: '따냄 시 기 +2 추가 — 용은 배고프다.',
+    passiveFoxsCunningDesc: '패스 시 유령 돌 무료 배치 (1회) — 속임수의 달인.',
+    passiveSpatialAnomalyDesc: '게임 시작 시 무작위 공허 1개 — 차원이 뒤틀린다.',
+    passiveEyeOfStormDesc: '최대 기 도달 시 다음 주문 비용 -2 — 폭풍의 중심.',
 
     // Game HUD
     yourTurn: '내 차례!',
@@ -154,21 +154,21 @@ const STRINGS = {
     spellDescThunderVeil: '3턴 동안 내 돌이 상대에게 보이지 않습니다. 전장의 안개!',
 
     // Spell descriptions (short)
-    spellDescShortStoneSkin: '돌을 보호합니다. 비밀.',
-    spellDescShortSanctuary: '3x3 따냄 금지 구역, 4턴.',
-    spellDescShortEarthenWall: '3칸 벽을 세웁니다.',
-    spellDescShortShatter: '위험한 적 돌을 파괴합니다.',
-    spellDescShortSmolder: '숨겨진 카운트다운. 활로를 태웁니다.',
-    spellDescShortInferno: '근처 단수 돌을 모두 따냅니다.',
-    spellDescShortMirage: '가짜 돌을 놓습니다. 비밀.',
-    spellDescShortSnare: '숨겨진 함정. 턴을 빼앗습니다.',
-    spellDescShortNineLives: '잡힌 그룹을 부활시킵니다.',
-    spellDescShortVoidRift: '교차점을 삭제합니다.',
-    spellDescShortWarpGate: '먼 두 지점을 연결합니다.',
-    spellDescShortPhaseShift: '돌이 무형이 됩니다.',
-    spellDescShortChainLightning: '연쇄 확률 공격.',
-    spellDescShortWildfire: '근처 모든 돌 50/50 파괴.',
-    spellDescShortThunderVeil: '3턴 동안 모든 돌을 숨깁니다.',
+    spellDescShortStoneSkin: '돌에 갑옷을 입힌다. 비밀.',
+    spellDescShortSanctuary: '3x3 보호 결계, 4턴 지속.',
+    spellDescShortEarthenWall: '3칸 돌벽을 세운다.',
+    spellDescShortShatter: '위험에 빠진 적 돌을 박살낸다.',
+    spellDescShortSmolder: '숨겨진 카운트다운. 활로가 타들어간다.',
+    spellDescShortInferno: '근처 단수 돌을 모조리 태운다.',
+    spellDescShortMirage: '가짜 돌을 심는다. 비밀.',
+    spellDescShortSnare: '숨겨진 함정. 턴을 빼앗는다.',
+    spellDescShortNineLives: '잡힌 그룹이 부활한다.',
+    spellDescShortVoidRift: '교차점을 소멸시킨다.',
+    spellDescShortWarpGate: '먼 두 지점을 이어 붙인다.',
+    spellDescShortPhaseShift: '돌이 무형이 된다.',
+    spellDescShortChainLightning: '연쇄 확률 낙뢰.',
+    spellDescShortWildfire: '근처 모든 돌 50/50 폭파.',
+    spellDescShortThunderVeil: '3턴간 모든 돌을 숨긴다.',
 
     // Spell categories
     catAttack: '공격',
@@ -281,6 +281,27 @@ const STRINGS = {
     glossaryChiDesc: '주문 시전을 위한 마법 에너지',
     glossaryCombo: '콤보 수',
     glossaryComboDesc: '한 턴에 돌 놓기 + 주문 시전 (추가 기 +1 소모)',
+
+    // Web3 / NFT teaser strings
+    web3SectionTitle: 'WEB3',
+    web3ComingSoon: 'COMING SOON',
+    web3NftSkins: 'NFT 주문 스킨',
+    web3NftSkinsDesc: '한정판 주문 이펙트를 소유하세요',
+    web3TokenWager: '토큰 베팅 대전',
+    web3TokenWagerDesc: '실력으로 증명하고, 토큰으로 보상받으세요',
+    web3Wallet: '지갑 연결',
+    web3WalletDesc: '프리미엄 보상을 잠금 해제하세요',
+    privyLogin: '지갑으로 로그인',
+    privyLoginSub: 'Web3 프리미엄 기능 해금',
+
+    // Social / Challenge strings
+    challengeFriend: '친구 도전',
+    challengeFriendSub: '카톡으로 도전장을 보내세요',
+    shareKakao: '카카오톡 공유',
+    shareTwitter: '트위터 공유',
+    shareCopied: '복사 완료!',
+    inviteFriend: '친구 초대',
+    inviteFriendDesc: '함께 플레이하면 더 재밌어요',
 
     // Language selector
     langKR: 'KR',
@@ -565,6 +586,27 @@ const STRINGS = {
     glossaryCombo: '组合招',
     glossaryComboDesc: '一回合内落子 + 施放法术（额外+1气消耗）',
 
+    // Web3 / NFT teaser strings
+    web3SectionTitle: 'WEB3',
+    web3ComingSoon: '即将推出',
+    web3NftSkins: 'NFT法术皮肤',
+    web3NftSkinsDesc: '拥有限量版法术特效',
+    web3TokenWager: '代币对战',
+    web3TokenWagerDesc: '用实力证明自己，赢取奖励',
+    web3Wallet: '连接钱包',
+    web3WalletDesc: '解锁高级奖励',
+    privyLogin: '钱包登录',
+    privyLoginSub: '解锁Web3高级功能',
+
+    // Social / Challenge strings
+    challengeFriend: '挑战好友',
+    challengeFriendSub: '通过消息发送挑战',
+    shareKakao: '分享到KakaoTalk',
+    shareTwitter: '分享到Twitter',
+    shareCopied: '已复制！',
+    inviteFriend: '邀请好友',
+    inviteFriendDesc: '和朋友一起更有趣',
+
     // Language selector
     langKR: 'KR',
     langCN: 'CN',
@@ -847,6 +889,27 @@ const STRINGS = {
     glossaryChiDesc: 'Your magic energy for casting spells',
     glossaryCombo: 'Combo Move',
     glossaryComboDesc: 'Place a stone + cast a spell in one turn (costs +1 extra Chi)',
+
+    // Web3 / NFT teaser strings
+    web3SectionTitle: 'WEB3',
+    web3ComingSoon: 'COMING SOON',
+    web3NftSkins: 'NFT Spell Skins',
+    web3NftSkinsDesc: 'Own limited-edition spell effects',
+    web3TokenWager: 'Token Wagering',
+    web3TokenWagerDesc: 'Prove your skill, earn rewards',
+    web3Wallet: 'Connect Wallet',
+    web3WalletDesc: 'Unlock premium rewards',
+    privyLogin: 'Login with Wallet',
+    privyLoginSub: 'Unlock Web3 premium features',
+
+    // Social / Challenge strings
+    challengeFriend: 'Challenge Friend',
+    challengeFriendSub: 'Send a challenge via message',
+    shareKakao: 'Share on KakaoTalk',
+    shareTwitter: 'Share on Twitter',
+    shareCopied: 'Copied!',
+    inviteFriend: 'Invite Friend',
+    inviteFriendDesc: 'More fun with friends',
 
     // Language selector
     langKR: 'KR',

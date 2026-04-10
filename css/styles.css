@@ -2,7 +2,8 @@
    AniGO Design System — Full Styles
    ============================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=Cormorant:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+/* Fonts: reduced to essential weights only for faster loading */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Cormorant:wght@600;700&family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap');
 
 :root {
   --bg-deep: #0a0a0f;
@@ -220,7 +221,7 @@ body {
   left: 0;
   right: 0;
   bottom: -60px;
-  background: url('../design/homepage-splash.png?v=3') center center / cover no-repeat;
+  background: url('../design/homepage-splash-opt.jpg') center center / cover no-repeat;
   animation: heroEntrance 1.2s cubic-bezier(0.25,0.46,0.45,0.94) forwards,
              heroSlowZoom 30s ease-in-out 1.2s infinite alternate;
 }

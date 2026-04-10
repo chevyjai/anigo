@@ -589,12 +589,20 @@ document.addEventListener('DOMContentLoaded', () => {
     startChampionSelect();
   }
 
-  // Puzzle mode button
+  // Puzzle mode button — lazy loads puzzle module on first click
   const btnPuzzle = document.getElementById('btn-puzzle');
+  let puzzleModuleLoaded = false;
   if (btnPuzzle) {
-    btnPuzzle.addEventListener('click', () => {
+    btnPuzzle.addEventListener('click', async () => {
       showScreen('puzzle-select');
-      // puzzle-ui.js will handle rendering the level map
+      if (!puzzleModuleLoaded) {
+        try {
+          await import('./puzzle-ui.js');
+          puzzleModuleLoaded = true;
+        } catch (e) {
+          console.warn('Failed to load puzzle module:', e);
+        }
+      }
       if (window.initPuzzleSelect) window.initPuzzleSelect();
     });
   }

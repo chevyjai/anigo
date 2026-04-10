@@ -382,10 +382,13 @@ export function resetProgress() {
 // ---- Internal Helpers ----
 
 function parsePuzzleId(puzzleId) {
-  const str = String(puzzleId);
+  // Handle formats: "p1-1", "p2-5", "1-1", "pd-3", etc.
+  const str = String(puzzleId).replace(/^p/, ''); // Strip "p" prefix
   if (str.includes('-')) {
-    const [w, l] = str.split('-').map(Number);
-    return { world: w || 1, level: l || 1 };
+    const parts = str.split('-');
+    const w = parseInt(parts[0], 10) || 1;
+    const l = parseInt(parts[1], 10) || 1;
+    return { world: w, level: l };
   }
   // Plain number — treat as world 1
   return { world: 1, level: parseInt(str, 10) || 1 };

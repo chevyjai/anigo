@@ -30,6 +30,39 @@ try {
   // Advanced puzzles not yet available — that's OK
 }
 
+// ── Tutorial puzzle IDs and intro text ──
+const TUTORIAL_PUZZLES = ['p1-1', 'p1-2', 'p1-3'];
+
+const TUTORIAL_INTROS = {
+  'p1-1': {
+    titleKo: '활로와 따먹기',
+    titleEn: 'Liberties & Capture',
+    bodyKo: "바둑에서는 돌의 '숨길' (활로)이 모두 막히면 잡을 수 있어요. 빈 곳을 막아 백돌을 잡아보세요!",
+    bodyEn: "In Go, when a stone's 'breathing spaces' (liberties) are all blocked, you can capture it. Block the empty space to capture the white stone!"
+  },
+  'p1-2': {
+    titleKo: '여러 돌 잡기',
+    titleEn: 'Capture Multiple Stones',
+    bodyKo: '여러 개의 돌도 한번에 잡을 수 있어요!',
+    bodyEn: 'You can capture multiple stones at once!'
+  },
+  'p1-3': {
+    titleKo: '귀의 돌 잡기',
+    titleEn: 'Corner Capture',
+    bodyKo: '자기 영역을 만들어 보세요',
+    bodyEn: 'Try making your own territory'
+  }
+};
+
+function isTutorialPuzzle(id) {
+  return TUTORIAL_PUZZLES.includes(id);
+}
+
+function hasTutorialCompleted() {
+  const progress = loadProgress();
+  return (progress.completed['p1-3'] || 0) > 0;
+}
+
 // ── Puzzle State ──
 let puzzleEngine = null;
 let puzzleRenderer = null;
@@ -227,6 +260,16 @@ function startPuzzle(puzzleId) {
   // Update UI
   updatePuzzleUI();
   updatePuzzleSpells();
+
+  // ── Tutorial: highlight solution cells on board ──
+  if (isTutorialPuzzle(puzzleId) && puzzle.solution) {
+    applyTutorialHighlights(puzzle.solution);
+  }
+
+  // ── Tutorial: show intro overlay before play ──
+  if (isTutorialPuzzle(puzzleId) && TUTORIAL_INTROS[puzzleId]) {
+    showTutorialIntro(puzzleId);
+  }
 }
 
 function setupPuzzleControls() {

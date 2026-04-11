@@ -44,7 +44,7 @@
       <div class="profile-streak-group">
         <span class="streak-display" id="streak-display" title="로그인 연속 기록"></span>
         <button id="btn-player-profile" class="player-profile-btn" aria-label="Player Profile">
-          <span class="profile-icon">棋</span>
+          <span class="profile-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="currentColor"/></svg></span>
         </button>
       </div>
       <div class="splash-lang" id="title-lang-selector"></div>
@@ -53,7 +53,7 @@
     <!-- Player profile panel (hidden by default) -->
     <div id="player-profile-panel" class="player-profile-panel hidden">
       <div class="profile-panel-header">
-        <span class="profile-panel-icon">棋</span>
+        <span class="profile-panel-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="currentColor"/></svg></span>
         <span class="profile-panel-name" id="profile-name"></span>
       </div>
       <div class="profile-panel-stats">
@@ -79,7 +79,7 @@
         </div>
       </div>
       <button id="btn-kakao-login" class="kakao-login-btn">
-        <span class="kakao-icon">💬</span> 카카오 로그인
+        <span class="kakao-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="#3C1E1E"><path d="M12 3C6.5 3 2 6.6 2 11c0 2.8 1.9 5.3 4.7 6.7-.2.7-.7 2.6-.8 3 0 0 0 .1.1.1s2.5-1.7 3.6-2.4c.8.1 1.6.2 2.4.2 5.5 0 10-3.6 10-8s-4.5-8-10-8z"/></svg></span> 카카오 로그인
       </button>
     </div>
 
@@ -92,14 +92,14 @@
     <!-- Game mode buttons (bottom-right) -->
     <div class="splash-buttons">
       <button id="btn-puzzle" class="splash-btn splash-btn-primary splash-btn-puzzle">
-        <span class="splash-btn-icon">🧩</span>
+        <span class="splash-btn-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h3a2 2 0 0 0 2-2V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1a2 2 0 0 0 2 2h3a1 1 0 0 1 1 1v3a2 2 0 0 0 2 2h1a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-1a2 2 0 0 0-2 2v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z"/></svg></span>
         <span class="splash-btn-text">
           <span id="splash-btn-puzzle-title">퍼즐 모드</span>
           <span class="splash-btn-sub" id="splash-btn-puzzle-sub">100+ 마법 바둑 퍼즐</span>
         </span>
       </button>
       <button id="btn-daily-challenge" class="splash-btn splash-btn-daily">
-        <span class="splash-btn-icon">⏱️</span>
+        <span class="splash-btn-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg></span>
         <span class="splash-btn-text">
           <span id="splash-btn-daily-title">오늘의 도전</span>
           <span class="splash-btn-sub" id="splash-btn-daily-sub">매일 새로운 퍼즐 도전</span>
@@ -107,21 +107,21 @@
         <span class="daily-badge" id="daily-badge"></span>
       </button>
       <button id="btn-vs-ai" class="splash-btn">
-        <span class="splash-btn-icon">🤖</span>
+        <span class="splash-btn-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="12" rx="2"/><circle cx="9" cy="14" r="1.5" fill="currentColor"/><circle cx="15" cy="14" r="1.5" fill="currentColor"/><path d="M12 2v4M8 8V6a4 4 0 0 1 8 0v2"/></svg></span>
         <span class="splash-btn-text">
           <span id="splash-btn-launch">AI 대전</span>
           <span class="splash-btn-sub" id="splash-btn-ai-sub">챔피언을 선택하고 AI와 대결</span>
         </span>
       </button>
       <button id="btn-local" class="splash-btn">
-        <span class="splash-btn-icon">👥</span>
+        <span class="splash-btn-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="3"/><circle cx="15" cy="7" r="3"/><path d="M3 21v-2a4 4 0 0 1 4-4h2m4 0h2a4 4 0 0 1 4 4v2"/></svg></span>
         <span class="splash-btn-text">
           <span id="splash-btn-local">2인 대전</span>
           <span class="splash-btn-sub" id="splash-btn-local-sub">친구와 함께 플레이</span>
         </span>
       </button>
       <button id="btn-challenge-friend" class="splash-btn splash-btn-social">
-        <span class="splash-btn-icon">⚔️</span>
+        <span class="splash-btn-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2l6 6m0 0l6-6M12 8v8m-4 4h8l-4-4-4 4z"/></svg></span>
         <span class="splash-btn-text">
           <span id="splash-btn-challenge">친구 도전</span>
           <span class="splash-btn-sub" id="splash-btn-challenge-sub">카톡으로 도전장을 보내세요</span>
@@ -211,7 +211,7 @@
       <canvas id="board-canvas"></canvas>
     </main>
 
-    <footer class="game-log glass-panel">
+    <footer class="game-log">
       <span class="game-log-label" id="log-label">LOG</span>
       <span id="game-log-text"></span>
     </footer>
@@ -238,7 +238,7 @@
     <div id="post-game-learning" class="post-game-learning hidden"></div>
     <div class="scoring-actions">
       <button id="btn-share-kakao" class="btn btn-share btn-share-kakao" aria-label="Share on KakaoTalk">
-        <span class="kakao-share-icon">💬</span>
+        <span class="kakao-share-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="#3C1E1E"><path d="M12 3C6.5 3 2 6.6 2 11c0 2.8 1.9 5.3 4.7 6.7-.2.7-.7 2.6-.8 3 0 0 0 .1.1.1s2.5-1.7 3.6-2.4c.8.1 1.6.2 2.4.2 5.5 0 10-3.6 10-8s-4.5-8-10-8z"/></svg></span>
         <span id="share-kakao-label">카카오톡 공유</span>
       </button>
       <button id="btn-share" class="btn btn-share" aria-label="Share result">
@@ -246,7 +246,7 @@
         <span id="share-label">공유하기</span>
       </button>
       <button id="btn-rematch-challenge" class="btn btn-share btn-challenge-rematch" aria-label="Challenge friend">
-        <span>⚔️</span>
+        <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2l6 6m0 0l6-6M12 8v8m-4 4h8l-4-4-4 4z"/></svg></span>
         <span id="rematch-challenge-label">친구 도전</span>
       </button>
       <button id="btn-play-again" class="btn btn-primary">Play Again</button>

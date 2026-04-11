@@ -216,6 +216,7 @@ function renderChampionGrid() {
 function showChampionDetail(champ) {
   const detail = document.getElementById('champ-detail');
   detail.classList.remove('hidden');
+  detail.style.setProperty('--lock-champ-color', champ.color);
 
   // Map category to display color var
   const catColorMap = {

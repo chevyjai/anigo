@@ -1701,22 +1701,24 @@ body {
   align-items: center;
   gap: 6px;
   margin-bottom: 6px;
+  flex-wrap: wrap;
 }
 
 .champ-spell-uses {
   font-size: 11px;
   font-weight: 700;
-  color: var(--foreground-dim);
-  background: rgba(255,255,255,0.06);
-  padding: 1px 5px;
-  border-radius: 3px;
+  color: var(--foreground-muted);
+  background: rgba(255,255,255,0.08);
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.06);
 }
 
 .champ-spell-cat-label {
-  font-size: 9px;
-  font-weight: 600;
+  font-size: 10px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
   color: var(--foreground-dim);
 }
 
@@ -2008,8 +2010,9 @@ body {
     width: 100%;
     max-width: 100%;
   }
+  .champ-detail-portrait-banner { height: 180px; }
   .champ-spells-row { flex-direction: column; align-items: center; }
-  .champ-spell-card { max-width: 320px; min-width: 280px; }
+  .champ-spell-card { max-width: 320px; min-width: 280px; min-height: auto; }
   .champ-select-body.detail-open .champ-card,
   .champ-select-body.detail-open .champ-card.yugioh-frame {
     width: 90px;
@@ -3839,6 +3842,7 @@ body {
     max-width: 100%;
     min-width: unset;
     width: 100%;
+    min-height: auto;
   }
   .champ-select-body.detail-open .champ-card,
   .champ-select-body.detail-open .champ-card.yugioh-frame {
